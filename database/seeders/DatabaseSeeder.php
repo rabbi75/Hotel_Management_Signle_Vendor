@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         foreach ($this->core as $seeder) {
-            if (single_vendor() && $seeder === AdminSeeder::class) {
+            if (single_vendor() && in_array($seeder, [AdminSeeder::class, PlanSeeder::class], true)) {
                 continue;
             }
 
@@ -50,11 +50,14 @@ class DatabaseSeeder extends Seeder
 
         $this->call(AdminUserSeeder::class);
 
-        if (app()->environment('local') && (bool) config('saas.seed.demo_data')) {
-            if (! single_vendor()) {
-                $this->call(DemoTenantSeeder::class);
-            }
+        if (single_vendor()) {
+            $this->call(HotelManagementSeeder::class);
 
+            return;
+        }
+
+        if (app()->environment('local') && (bool) config('saas.seed.demo_data')) {
+            $this->call(DemoTenantSeeder::class);
             $this->call(DemoDataSeeder::class);
         }
     }

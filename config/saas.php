@@ -70,7 +70,7 @@ return [
         'admin_email' => env('SAAS_ADMIN_EMAIL', 'admin@example.com'),
         'admin_password' => env('SAAS_ADMIN_PASSWORD', 'password'),
         'admin_workspace' => env('SAAS_ADMIN_WORKSPACE', 'Hotel'),
-        'demo_data' => (bool) env('SAAS_SEED_DEMO_DATA', true),
+        'demo_data' => (bool) env('SAAS_SEED_DEMO_DATA', false),
 
         // An ordinary workspace owner, seeded alongside the demo content so the
         // tenant experience can be checked without super-admin permissions.

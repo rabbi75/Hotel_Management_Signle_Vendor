@@ -99,7 +99,7 @@ class CreateReservation
 
     protected function estimateTotal(ReservationData $data, CarbonImmutable $checkIn, CarbonImmutable $checkOut): int
     {
-        $nights = max(1, $checkIn->diffInDays($checkOut));
+        $nights = max(1, (int) $checkIn->diffInDays($checkOut));
         $nightly = 0;
 
         if ($data->bedId !== null) {
@@ -116,6 +116,6 @@ class CreateReservation
         $subtotal = $nightly * $nights;
         $afterDiscount = max(0, $subtotal - $data->discount);
 
-        return $afterDiscount + $data->tax;
+        return (int) ($afterDiscount + $data->tax);
     }
 }

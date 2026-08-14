@@ -7,22 +7,17 @@ namespace App\Modules\CMS\Database\Seeders;
 use App\Modules\CMS\DTOs\PageData;
 use App\Modules\CMS\Enums\PageStatus;
 use App\Modules\CMS\Models\Page;
+use App\Modules\CMS\Models\PageBlock;
 use App\Modules\CMS\Services\BlockRegistry;
 use App\Modules\CMS\Services\PageService;
 use App\Support\Tenancy\CompanyScope;
 use Illuminate\Database\Seeder;
 
 /**
- * The platform's landing page, as editable blocks.
+ * Public homepage for the hotel installation.
  *
- * Content is lifted verbatim from resources/js/pages/welcome.tsx, which served
- * `/` as hardcoded React. Seeding it means the first thing an operator sees in
- * the page builder is the site they already have, rather than a blank canvas —
- * and `/` keeps rendering the same thing it did before, only now it is theirs
- * to change.
- *
- * Idempotent: a second run finds the existing homepage and leaves it alone, so
- * re-seeding never overwrites an edited landing page.
+ * Idempotent on a fresh database. In single-vendor mode a second run replaces
+ * leftover SaaS-kit copy so `/` describes the hotel, not the starter kit.
  */
 class LandingPageSeeder extends Seeder
 {
@@ -33,7 +28,13 @@ class LandingPageSeeder extends Seeder
 
     public function run(): void
     {
-        if ($this->existingHomepage() instanceof Page) {
+        $page = $this->existingHomepage();
+
+        if ($page instanceof Page) {
+            if (single_vendor() && $this->looksLikeSaasCopy($page)) {
+                $this->replaceContent($page);
+            }
+
             return;
         }
 
@@ -42,15 +43,34 @@ class LandingPageSeeder extends Seeder
             slug: 'home',
             status: PageStatus::Published,
             isHomepage: true,
-            seo: [
-                'title' => 'Build your SaaS faster',
-                'description' => 'Multi-tenancy, authentication, billing and permissions, already built and tested.',
-            ],
+            seo: $this->seo(),
         ));
 
         $page->published_at = now();
         $page->save();
 
+        $this->insertBlocks($page);
+    }
+
+    protected function replaceContent(Page $page): void
+    {
+        $page->forceFill([
+            'title' => 'Home',
+            'status' => PageStatus::Published,
+            'seo' => $this->seo(),
+            'published_at' => $page->published_at ?? now(),
+        ])->save();
+
+        PageBlock::query()
+            ->withoutGlobalScope(CompanyScope::class)
+            ->where('page_id', $page->id)
+            ->delete();
+
+        $this->insertBlocks($page);
+    }
+
+    protected function insertBlocks(Page $page): void
+    {
         foreach ($this->blocks() as $type => $data) {
             $schema = $this->blocks->get($type);
 
@@ -63,21 +83,30 @@ class LandingPageSeeder extends Seeder
     }
 
     /**
-     * The blocks the landing page is built from, in order.
-     *
+     * @return array{title: string, description: string}
+     */
+    protected function seo(): array
+    {
+        return [
+            'title' => 'Grand Palms Hotel — rooms, dining and city stays',
+            'description' => 'Boutique hotel in Gulshan, Dhaka. Book rooms, manage arrivals, and enjoy the restaurant, pool and spa.',
+        ];
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     protected function blocks(): array
     {
         return [
             'hero' => [
-                'eyebrow' => 'Laravel 12 · React 19 · Tailwind v4',
-                'heading' => 'The SaaS foundation you would have built anyway',
-                'subheading' => 'Multi-tenancy, authentication, billing, permissions and an application shell that already feels finished. Start from the part of the product that is actually yours.',
-                'primary_label' => 'Get started free',
-                'primary_url' => '/register',
-                'secondary_label' => 'Log in',
-                'secondary_url' => '/login',
+                'eyebrow' => 'Gulshan, Dhaka',
+                'heading' => 'A calm city stay, run as a proper hotel',
+                'subheading' => 'Grand Palms Hotel is a 12-key boutique property with front desk, housekeeping, dining and spa — book a room or check in at the desk.',
+                'primary_label' => 'Staff login',
+                'primary_url' => '/admin/login',
+                'secondary_label' => 'Call reception',
+                'secondary_url' => 'tel:+880255001200',
                 'align' => 'center',
                 'section_background' => 'gradient',
                 'section_padding' => 'spacious',
@@ -86,10 +115,10 @@ class LandingPageSeeder extends Seeder
 
             'stats' => [
                 'items' => [
-                    ['value' => '40+', 'label' => 'UI components', 'description' => ''],
-                    ['value' => '9', 'label' => 'Feature modules', 'description' => ''],
-                    ['value' => '100%', 'label' => 'TypeScript strict', 'description' => ''],
-                    ['value' => 'A11y', 'label' => 'Keyboard-first', 'description' => ''],
+                    ['value' => '12', 'label' => 'Guest rooms', 'description' => ''],
+                    ['value' => '4', 'label' => 'Room types', 'description' => ''],
+                    ['value' => '14:00', 'label' => 'Check-in', 'description' => ''],
+                    ['value' => '11:00', 'label' => 'Check-out', 'description' => ''],
                 ],
                 'section_background' => 'default',
                 'section_padding' => 'compact',
@@ -97,49 +126,49 @@ class LandingPageSeeder extends Seeder
             ],
 
             'features' => [
-                'heading' => 'Everything the first six months would have cost you',
-                'subheading' => 'Each piece is a real implementation with tests — not a placeholder waiting for you to finish it.',
+                'heading' => 'What you can expect on property',
+                'subheading' => 'Rooms, food and beverage, and the services the front desk posts to your folio.',
                 'columns' => '4',
                 'items' => [
                     [
                         'icon' => 'building-2',
-                        'title' => 'Multi-tenant workspaces',
-                        'description' => 'Companies, invitations and per-workspace data isolation are wired end to end from day one.',
+                        'title' => 'Rooms & suites',
+                        'description' => 'Standard twins, deluxe kings, family rooms and executive suites with city or garden outlooks.',
+                    ],
+                    [
+                        'icon' => 'utensils',
+                        'title' => 'Dining',
+                        'description' => 'The Palms Restaurant for all-day dining, plus a rooftop pool bar for light bites.',
+                    ],
+                    [
+                        'icon' => 'sparkles',
+                        'title' => 'Spa & pool',
+                        'description' => 'Rooftop pool, fitness centre and in-house spa treatments you can charge to the room.',
+                    ],
+                    [
+                        'icon' => 'bus',
+                        'title' => 'Airport transfer',
+                        'description' => 'Pre-book a transfer with your reservation, or ask reception on arrival.',
+                    ],
+                    [
+                        'icon' => 'wifi',
+                        'title' => 'Stay connected',
+                        'description' => 'Complimentary Wi-Fi, air conditioning and in-room safes in every room type.',
+                    ],
+                    [
+                        'icon' => 'clock',
+                        'title' => 'Front desk',
+                        'description' => 'Check-in from 14:00, check-out by 11:00. Photo ID is required at arrival.',
+                    ],
+                    [
+                        'icon' => 'shirt',
+                        'title' => 'Laundry',
+                        'description' => 'Same-day laundry posted to the guest folio during your stay.',
                     ],
                     [
                         'icon' => 'shield-check',
-                        'title' => 'Roles and permissions',
-                        'description' => 'Policy-backed authorisation with a permission matrix your customers can manage themselves.',
-                    ],
-                    [
-                        'icon' => 'key-round',
-                        'title' => 'Complete auth',
-                        'description' => 'Registration, verification, password reset, two-factor and device sessions — all styled and tested.',
-                    ],
-                    [
-                        'icon' => 'credit-card',
-                        'title' => 'Billing ready',
-                        'description' => 'Plans, subscriptions and invoices modelled so you can plug in your provider and charge.',
-                    ],
-                    [
-                        'icon' => 'chart-column',
-                        'title' => 'Dashboards and tables',
-                        'description' => 'A production data table with server-side sort, filter and export, plus themed charts.',
-                    ],
-                    [
-                        'icon' => 'webhook',
-                        'title' => 'Realtime and webhooks',
-                        'description' => 'Broadcast notifications over websockets and sign outbound webhooks without extra plumbing.',
-                    ],
-                    [
-                        'icon' => 'layers',
-                        'title' => 'Modular by design',
-                        'description' => 'Every feature is a self-contained module with its own routes, policies and tests.',
-                    ],
-                    [
-                        'icon' => 'lock',
-                        'title' => 'Audited and hardened',
-                        'description' => 'Activity logging, rate limiting and a strict CSP baked into the request lifecycle.',
+                        'title' => 'Secure stay',
+                        'description' => 'On-site security and a night watch so the property stays quiet after hours.',
                     ],
                 ],
                 'section_background' => 'muted',
@@ -148,10 +177,10 @@ class LandingPageSeeder extends Seeder
             ],
 
             'cta' => [
-                'heading' => 'Ship the product, not the plumbing',
-                'body' => 'Clone it, rename it, and have a signed-in, multi-tenant application running this afternoon.',
-                'button_label' => 'Create your workspace',
-                'button_url' => '/register',
+                'heading' => 'Reserve a room at Grand Palms',
+                'body' => 'Choose dates online, or the front desk can take a walk-in, phone or OTA booking.',
+                'button_label' => 'Staff login',
+                'button_url' => '/admin/login',
                 'tone' => 'primary',
                 'section_background' => 'default',
                 'section_padding' => 'normal',
@@ -160,11 +189,14 @@ class LandingPageSeeder extends Seeder
         ];
     }
 
-    /**
-     * The console has no active workspace, so the tenant scope is lifted
-     * explicitly rather than relied on: a platform-owned page carries a null
-     * `company_id`.
-     */
+    protected function looksLikeSaasCopy(Page $page): bool
+    {
+        $haystack = strtolower((string) json_encode($page->seo));
+
+        return str_contains($haystack, 'saas')
+            || str_contains($haystack, 'multi-tenancy');
+    }
+
     protected function existingHomepage(): ?Page
     {
         return Page::query()

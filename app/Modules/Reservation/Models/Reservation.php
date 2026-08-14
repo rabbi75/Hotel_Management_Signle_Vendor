@@ -117,6 +117,6 @@ class Reservation extends Model
 
     public function nights(): int
     {
-        return max(1, $this->check_in_date->diffInDays($this->check_out_date));
+        return max(1, (int) $this->check_in_date->diffInDays($this->check_out_date));
     }
 }
