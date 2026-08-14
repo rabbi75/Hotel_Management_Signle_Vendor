@@ -1,0 +1,7 @@
+Enhance user avatar handling in authentication flow
+
+- Updated the `HandleInertiaRequests` middleware to explicitly resolve the user resource, ensuring proper serialization for avatar and initials.
+- Added `avatar` field to `AuthenticatedUserResource` for better user data representation.
+- Modified `NavUser` component to utilize a fallback mechanism for user avatar display, prioritizing `avatar` over `avatar_url`.
+- Updated TypeScript definitions to include optional `avatar_url` property for authenticated users.
+- Enhanced tests to verify correct avatar and initials rendering in the user profile response.

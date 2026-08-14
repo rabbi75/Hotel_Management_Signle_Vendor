@@ -1,0 +1,64 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+
+    paths:
+        - app
+        - config
+        - database
+        - routes
+        - tests
+
+    excludePaths:
+        - app/Support/helpers.php
+
+    ignoreErrors:
+        # Migrations are schema-only closures; annotating every Blueprint array
+        # would add noise without adding safety.
+        - identifier: missingType.iterableValue
+          path: database/migrations/*
+
+        # Library traits offered to models across the app. PHPStan only analyses
+        # a trait through its users, so a trait no model has adopted *yet* reads
+        # as dead code — which is exactly what these two are meant to be until
+        # a feature opts in.
+        - identifier: trait.unused
+          paths:
+            - app/Support/Concerns/BelongsToCompany.php
+            - app/Modules/Audit/Concerns/Auditable.php
+
+        # Larastan resolves Request::user() and Seeder::$command to their
+        # non-null types. Both are genuinely null at runtime — user() on a guest
+        # request, $command when a seeder is invoked programmatically — so the
+        # nullsafe operators are load-bearing and must not be "simplified" away.
+        - identifier: nullsafe.neverNull
+          paths:
+            - app/Providers/AppServiceProvider.php
+            - database/seeders/*
+
+        # media-library.php references MediaLibraryPro, a paid add-on that is
+        # not installed. The config key is inert without it.
+        - identifier: class.notFound
+          path: config/media-library.php
+
+        # Pest's fluent API is built from __call proxies and higher-order tap
+        # proxies that PHPStan cannot follow: `test()->actingAs()`, chained
+        # `->delete()`, and `collect()` inside a closure whose template types are
+        # unresolvable. These are limitations of analysing Pest, not defects in
+        # the tests — the suite itself is the check that matters here.
+        - identifier: method.notFound
+          path: tests/*
+        - identifier: argument.templateType
+          path: tests/*
+        - identifier: missingType.iterableValue
+          path: tests/*
+        - identifier: property.notFound
+          path: tests/*
+        - identifier: nullsafe.neverNull
+          path: tests/*
+
+    checkModelProperties: true
+    checkOctaneCompatibility: false
+    reportUnmatchedIgnoredErrors: false

@@ -1,0 +1,8 @@
+public
+vendor
+node_modules
+storage
+bootstrap/ssr
+resources/js/types/ziggy.d.ts
+composer.lock
+package-lock.json
