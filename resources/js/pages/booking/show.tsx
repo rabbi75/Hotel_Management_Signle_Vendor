@@ -1,3 +1,4 @@
+import { HotelPhoto } from '@/components/public/hotel-photo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -112,9 +113,7 @@ export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
             <Head title={`Book a room — ${hotel.name}`} />
 
             <section className="relative isolate overflow-hidden border-b border-border">
-                {hotel.cover && (
-                    <img src={hotel.cover} alt="" className="absolute inset-0 -z-10 size-full object-cover opacity-20" />
-                )}
+                <HotelPhoto src={hotel.cover} seed="hero" decorative className="absolute inset-0 -z-10 opacity-20" />
                 <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
                     <p className="flex items-center gap-2 text-sm font-medium tracking-wide text-muted-foreground uppercase">
                         <MapPin className="size-4" aria-hidden="true" />
@@ -194,13 +193,7 @@ export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
                                 >
                                     <div className="grid sm:grid-cols-[16rem_minmax(0,1fr)]">
                                         <div className="aspect-4/3 bg-muted sm:aspect-auto sm:min-h-full">
-                                            {room.image ? (
-                                                <img src={room.image} alt="" className="size-full object-cover" />
-                                            ) : (
-                                                <div className="flex size-full min-h-40 items-center justify-center text-sm text-muted-foreground">
-                                                    {room.name}
-                                                </div>
-                                            )}
+                                            <HotelPhoto src={room.image} alt={room.name} seed={room.room_type_id} />
                                         </div>
                                         <div className="flex flex-col gap-3 p-5">
                                             <div className="flex items-start justify-between gap-3">

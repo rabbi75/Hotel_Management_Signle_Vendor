@@ -85,5 +85,6 @@ it('renders live rooms on the published homepage', function (): void {
         ->and($roomsBlock['data']['heading'])->toBe('Rooms for tonight')
         ->and($roomsBlock['data']['rooms'][0]['name'])->toBe('Standard Double')
         ->and($roomsBlock['data']['rooms'][0]['available_rooms'])->toBe(1)
+        ->and($roomsBlock['data']['rooms'][0]['image'])->toBeString()->not->toBe('')
         ->and($roomsBlock['data']['slug'])->toBe('seaside');
 });

@@ -55,7 +55,7 @@ class PublicRoomCatalogService
                 'max_adults' => $type->max_adults,
                 'max_children' => $type->max_children,
                 'max_occupancy' => $type->max_occupancy,
-                'image' => $type->getFirstMediaUrl('gallery') ?: null,
+                'image' => $type->getFirstMediaUrl('gallery') ?: $this->placeholderImage($type->id),
                 'facilities' => $type->facilities
                     ->pluck('name')
                     ->filter()
@@ -142,5 +142,17 @@ class PublicRoomCatalogService
             'slug' => $setting->public_slug,
             'number' => $number,
         ]);
+    }
+
+    protected function placeholderImage(int $seed): string
+    {
+        $images = [
+            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80',
+            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=80',
+            'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=80',
+        ];
+
+        return $images[$seed % count($images)];
     }
 }

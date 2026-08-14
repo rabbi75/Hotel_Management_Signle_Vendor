@@ -1,3 +1,5 @@
+import { HotelPhoto } from '@/components/public/hotel-photo';
+import { HOTEL_HERO_PLACEHOLDER } from '@/lib/hotel-placeholders';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
@@ -6,7 +8,7 @@ import { str, type BlockRendererProps } from './support';
 
 export default function HeroBlock({ data }: BlockRendererProps) {
     const align = str(data, 'align', 'center');
-    const image = str(data, 'image');
+    const image = str(data, 'image', HOTEL_HERO_PLACEHOLDER);
     const heading = str(data, 'heading');
     const eyebrow = str(data, 'eyebrow');
     const headingId = heading ? `hero-${heading.slice(0, 12).replace(/\W+/g, '-').toLowerCase()}` : undefined;
@@ -19,14 +21,7 @@ export default function HeroBlock({ data }: BlockRendererProps) {
             className="pt-20 sm:pt-28"
             innerClassName={cn(centred ? 'text-center' : 'text-left')}
         >
-            {image && (
-                <img
-                    src={image}
-                    alt=""
-                    aria-hidden="true"
-                    className="absolute inset-0 -z-10 size-full object-cover opacity-15 dark:opacity-10"
-                />
-            )}
+            <HotelPhoto src={image} seed="hero" decorative className="absolute inset-0 -z-10 opacity-15 dark:opacity-10" />
 
             <div className={cn('max-w-3xl', centred && 'mx-auto')}>
                 {eyebrow && (

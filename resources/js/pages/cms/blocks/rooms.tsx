@@ -1,3 +1,4 @@
+import { HotelPhoto } from '@/components/public/hotel-photo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -71,13 +72,7 @@ export default function RoomsBlock({ data }: BlockRendererProps) {
                         return (
                             <li key={id || rowStr(room, 'name')} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
                                 <div className="aspect-4/3 bg-muted">
-                                    {image ? (
-                                        <img src={image} alt="" className="size-full object-cover" />
-                                    ) : (
-                                        <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
-                                            {rowStr(room, 'name')}
-                                        </div>
-                                    )}
+                                    <HotelPhoto src={image} alt={rowStr(room, 'name')} seed={id || rowStr(room, 'name')} />
                                 </div>
                                 <div className="space-y-3 p-5">
                                     <div className="flex items-start justify-between gap-3">
