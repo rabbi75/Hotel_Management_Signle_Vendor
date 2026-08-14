@@ -10,7 +10,7 @@ import { AppLayout } from '@/layouts/app-layout';
 import type { BreadcrumbItem, TablePayload } from '@/types';
 import type { ReservationRow } from '@/types/reservation';
 import { Link, router } from '@inertiajs/react';
-import { CalendarDays, Eye, Pencil, Plus, SearchX } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Eye, Pencil, Plus, SearchX } from 'lucide-react';
 
 interface Props {
     table: TablePayload<ReservationRow>;
@@ -40,6 +40,14 @@ export default function ReservationsIndex({ table, can }: Props) {
         const actions: RowAction[] = [
             { id: 'view', label: 'View', icon: <Eye className="size-4 opacity-70" aria-hidden="true" />, onSelect: () => router.visit(route('reservations.show', row.id)) },
         ];
+        if (allows('reservations.update') && row.can_confirm) {
+            actions.push({
+                id: 'confirm',
+                label: 'Confirm',
+                icon: <CheckCircle2 className="size-4 opacity-70" aria-hidden="true" />,
+                onSelect: () => router.post(route('reservations.confirm', row.id), {}, { preserveScroll: true }),
+            });
+        }
         if (allows('reservations.update') && row.can_cancel) {
             actions.push({ id: 'edit', label: 'Edit', icon: <Pencil className="size-4 opacity-70" aria-hidden="true" />, onSelect: () => router.visit(route('reservations.edit', row.id)) });
         }

@@ -22,17 +22,6 @@ use Illuminate\Support\Collection;
 class AvailabilityQueryService
 {
     /**
-     * @return list<ReservationStatus>
-     */
-    protected function occupyingStatuses(): array
-    {
-        return array_values(array_filter(
-            ReservationStatus::cases(),
-            static fn (ReservationStatus $status): bool => $status->occupiesInventory(),
-        ));
-    }
-
-    /**
      * @return list<array<string, mixed>>
      */
     public function forHotel(
@@ -40,6 +29,7 @@ class AvailabilityQueryService
         CarbonInterface $checkIn,
         CarbonInterface $checkOut,
         ?int $roomTypeId = null,
+        bool $includeUnavailable = false,
     ): array {
         /** @var Collection<int, RoomType> $types */
         $types = RoomType::query()
@@ -49,13 +39,13 @@ class AvailabilityQueryService
             ->orderBy('name')
             ->get();
 
-        $nights = max(1, $checkIn->diffInDays($checkOut));
+        $nights = max(1, (int) $checkIn->diffInDays($checkOut));
         $rows = [];
 
         foreach ($types as $type) {
             $available = $this->availableCount($hotel->id, $type->id, $checkIn, $checkOut);
 
-            if ($available <= 0) {
+            if ($available <= 0 && ! $includeUnavailable) {
                 continue;
             }
 
@@ -115,5 +105,16 @@ class AvailabilityQueryService
             ->count();
 
         return max(0, $freeRooms - $unassigned);
+    }
+
+    /**
+     * @return list<ReservationStatus>
+     */
+    protected function occupyingStatuses(): array
+    {
+        return array_values(array_filter(
+            ReservationStatus::cases(),
+            static fn (ReservationStatus $status): bool => $status->occupiesInventory(),
+        ));
     }
 }

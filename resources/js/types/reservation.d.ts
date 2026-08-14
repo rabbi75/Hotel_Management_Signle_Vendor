@@ -72,6 +72,7 @@ export interface ReservationRow {
     can_check_in: boolean;
     can_check_out: boolean;
     can_cancel: boolean;
+    can_confirm: boolean;
     created_at: string | null;
 }
 

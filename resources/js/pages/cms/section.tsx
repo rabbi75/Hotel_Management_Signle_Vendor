@@ -58,6 +58,7 @@ export function Section({ data, children, className, innerClassName, ...aria }: 
 
     return (
         <section
+            id={str(data, 'section_id') || undefined}
             className={cn('relative isolate overflow-hidden px-4 sm:px-6', BACKGROUNDS[background] ?? BACKGROUNDS.default, PADDING[padding] ?? PADDING.normal, className)}
             {...aria}
         >

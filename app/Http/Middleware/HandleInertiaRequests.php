@@ -9,14 +9,15 @@ use App\Modules\Company\Http\Resources\CompanySummaryResource;
 use App\Modules\Hotel\Http\Resources\HotelSummaryResource;
 use App\Modules\Hotel\Models\Hotel;
 use App\Modules\Notification\Services\NotificationCenter;
+use App\Modules\OnlineBooking\Services\ResolvePublicBookingProperty;
 use App\Modules\Platform\Actions\ImpersonateTenant;
-use App\Modules\Workspace\Http\Resources\WorkspaceSummaryResource;
-use App\Modules\Workspace\Services\AccessibleWorkspaces;
 use App\Modules\Platform\Http\Resources\AdminResource;
 use App\Modules\Platform\Models\Admin;
 use App\Modules\User\Actions\StartImpersonation;
 use App\Modules\User\Http\Resources\AuthenticatedUserResource;
 use App\Modules\User\Models\User;
+use App\Modules\Workspace\Http\Resources\WorkspaceSummaryResource;
+use App\Modules\Workspace\Services\AccessibleWorkspaces;
 use App\Support\Branding\Branding;
 use App\Support\Navigation\NavigationBuilder;
 use Illuminate\Http\Request;
@@ -109,6 +110,8 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'singleVendor' => single_vendor(),
+
+            'bookingUrl' => fn (): ?string => app(ResolvePublicBookingProperty::class)->url(),
 
             'navigation' => fn (): array => $user === null ? [] : app(NavigationBuilder::class)->for($user),
 

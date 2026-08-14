@@ -58,7 +58,7 @@ export interface PublicShellProps {
 }
 
 export function PublicShell({ children, header = [], footer = [], banner, className }: PublicShellProps) {
-    const { name, auth } = usePage<SharedProps>().props;
+    const { name, auth, bookingUrl } = usePage<SharedProps>().props;
 
     const loginUrl = routeUrl('login');
     const registerUrl = routeUrl('register');
@@ -86,9 +86,15 @@ export function PublicShell({ children, header = [], footer = [], banner, classN
                     <div className="ml-auto flex items-center gap-2">
                         <ThemeToggle />
 
+                        {bookingUrl && !authenticated && (
+                            <Button asChild size="sm">
+                                <Link href={bookingUrl}>Book a room</Link>
+                            </Button>
+                        )}
+
                         {authenticated
                             ? dashboardUrl && (
-                                  <Button asChild size="sm">
+                                  <Button asChild size="sm" variant={bookingUrl ? 'outline' : 'default'}>
                                       <Link href={dashboardUrl}>
                                           Dashboard
                                           <ArrowRight className="size-4" aria-hidden="true" />
@@ -103,7 +109,7 @@ export function PublicShell({ children, header = [], footer = [], banner, classN
                                           </Button>
                                       )}
                                       {registerUrl && (
-                                          <Button asChild size="sm">
+                                          <Button asChild size="sm" variant={bookingUrl ? 'outline' : 'default'}>
                                               <Link href={registerUrl}>Get started</Link>
                                           </Button>
                                       )}
@@ -127,16 +133,14 @@ export function PublicShell({ children, header = [], footer = [], banner, classN
 
             <footer className="border-t border-border">
                 <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
-                    <p>
-                        © {new Date().getFullYear()} {name}. All rights reserved.
-                    </p>
+                    <p>© {new Date().getFullYear()} {name}. All rights reserved.</p>
 
                     {footer.length > 0 ? (
                         <nav aria-label="Footer">
-                            <MenuLinks nodes={footer} className="flex flex-wrap items-center gap-6" />
+                            <MenuLinks nodes={footer} className="flex flex-wrap items-center justify-center gap-6" />
                         </nav>
                     ) : (
-                        <p>Built with Laravel, Inertia and React.</p>
+                        <p>Gulshan, Dhaka</p>
                     )}
                 </div>
             </footer>

@@ -13,7 +13,7 @@ import type { BreadcrumbItem } from '@/types';
 import type { GuestFolioRow } from '@/types/folio';
 import type { OptionMap, ReservationRow } from '@/types/reservation';
 import { Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, LogIn, LogOut, Pencil, Wallet, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, LogIn, LogOut, Pencil, Wallet, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 const NONE = '__none__';
@@ -24,6 +24,7 @@ interface Props {
     can: {
         update: boolean;
         cancel: boolean;
+        confirm: boolean;
         check_in: boolean;
         check_out: boolean;
         view_folio: boolean;
@@ -52,6 +53,11 @@ export default function ReservationsShow({ reservation, folio, can, rooms, beds 
         { label: 'Reservations', href: route('reservations.index') },
         { label: reservation.number },
     ];
+
+    async function confirmStay(): Promise<void> {
+        const ok = await confirm({ title: 'Confirm this reservation?', confirmLabel: 'Confirm stay' });
+        if (ok) router.post(route('reservations.confirm', reservation.id), {}, { preserveScroll: true });
+    }
 
     async function cancel(): Promise<void> {
         const ok = await confirm({ title: 'Cancel this reservation?', variant: 'destructive', confirmLabel: 'Cancel reservation' });
@@ -102,6 +108,12 @@ export default function ReservationsShow({ reservation, folio, can, rooms, beds 
                                         <Pencil className="size-4" aria-hidden="true" />
                                         Edit
                                     </Link>
+                                </Button>
+                            )}
+                            {can.update && reservation.can_confirm && (
+                                <Button onClick={() => void confirmStay()}>
+                                    <CheckCircle2 className="size-4" aria-hidden="true" />
+                                    Confirm
                                 </Button>
                             )}
                             {can.check_in && reservation.can_check_in && (

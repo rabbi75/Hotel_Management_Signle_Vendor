@@ -6,6 +6,7 @@ namespace App\Modules\Reservation\Actions;
 
 use App\Modules\Hotel\Enums\RoomStatus;
 use App\Modules\Hotel\Models\Room;
+use App\Modules\HotelOperations\Events\ReservationCancelled;
 use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Modules\Reservation\Models\Reservation;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class CancelReservation
             ]);
         }
 
-        return DB::transaction(function () use ($reservation): Reservation {
+        $reservation = DB::transaction(function () use ($reservation): Reservation {
             $reservation->status = ReservationStatus::Cancelled;
             $reservation->save();
 
@@ -44,5 +45,9 @@ class CancelReservation
 
             return $reservation->fresh() ?? $reservation;
         });
+
+        ReservationCancelled::dispatch($reservation);
+
+        return $reservation;
     }
 }

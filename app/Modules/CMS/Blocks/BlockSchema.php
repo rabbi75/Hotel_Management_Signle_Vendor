@@ -90,6 +90,11 @@ abstract class BlockSchema implements Arrayable
                 ->rules('nullable', 'in:narrow,normal,wide,full')
                 ->default('normal')
                 ->group(BlockField::GROUP_SECTION),
+
+            BlockField::text('section_id', __('Anchor id'))
+                ->rules('nullable', 'string', 'max:80')
+                ->help(__('Used for in-page links such as /#rooms.'))
+                ->group(BlockField::GROUP_SECTION),
         ];
     }
 

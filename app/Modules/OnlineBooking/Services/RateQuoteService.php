@@ -24,7 +24,7 @@ class RateQuoteService
         int $discount = 0,
         int $tax = 0,
     ): array {
-        $nights = max(1, $checkIn->diffInDays($checkOut));
+        $nights = max(1, (int) $checkIn->diffInDays($checkOut));
         $subtotal = $roomType->base_price * $nights;
         $afterDiscount = max(0, $subtotal - $discount);
 

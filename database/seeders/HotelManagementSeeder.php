@@ -64,9 +64,11 @@ use App\Support\Enums\Theme;
 use App\Support\Tenancy\CurrentCompany;
 use App\Support\Tenancy\CurrentWorkspace;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Replaces SaaS kit dummy rows with a single working hotel property.
@@ -366,7 +368,7 @@ class HotelManagementSeeder extends Seeder
         $hotel = Hotel::query()->create([
             'name' => 'Grand Palms Hotel',
             'slug' => 'grand-palms-hotel',
-            'description' => 'A 48-key boutique hotel in Gulshan with city and garden rooms, a restaurant, and a rooftop pool.',
+            'description' => 'A 12-key boutique hotel in Gulshan with city and garden rooms, a restaurant, and a rooftop pool.',
             'address' => '12 Gulshan Avenue',
             'city' => 'Dhaka',
             'state' => 'Dhaka',
@@ -388,6 +390,8 @@ class HotelManagementSeeder extends Seeder
             'status' => HotelStatus::Active,
             'is_active' => true,
         ]);
+
+        $this->attachPublicImage($hotel, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80', 'cover');
 
         $building = Building::query()->create([
             'hotel_id' => $hotel->id,
@@ -418,16 +422,16 @@ class HotelManagementSeeder extends Seeder
         $types = [];
 
         foreach ([
-            ['name' => 'Standard Twin', 'code' => 'STW', 'price' => 8500, 'adults' => 2, 'children' => 1, 'occupancy' => 3, 'beds' => '2 single beds'],
-            ['name' => 'Deluxe King', 'code' => 'DLX', 'price' => 12500, 'adults' => 2, 'children' => 1, 'occupancy' => 3, 'beds' => '1 king bed'],
-            ['name' => 'Family Room', 'code' => 'FAM', 'price' => 17500, 'adults' => 3, 'children' => 2, 'occupancy' => 5, 'beds' => '1 king + 2 singles'],
-            ['name' => 'Executive Suite', 'code' => 'STE', 'price' => 24000, 'adults' => 2, 'children' => 2, 'occupancy' => 4, 'beds' => '1 king bed + sofa'],
+            ['name' => 'Standard Twin', 'code' => 'STW', 'price' => 8500, 'adults' => 2, 'children' => 1, 'occupancy' => 3, 'beds' => '2 single beds', 'description' => 'Two singles facing the avenue or the garden court. Desk, blackout curtains and a compact bath. Sleeps two adults and one child.', 'image' => 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=80'],
+            ['name' => 'Deluxe King', 'code' => 'DLX', 'price' => 12500, 'adults' => 2, 'children' => 1, 'occupancy' => 3, 'beds' => '1 king bed', 'description' => 'A king bed, seating nook and city or garden outlook. The most requested room for couples and short business stays.', 'image' => 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=80'],
+            ['name' => 'Family Room', 'code' => 'FAM', 'price' => 17500, 'adults' => 3, 'children' => 2, 'occupancy' => 5, 'beds' => '1 king + 2 singles', 'description' => 'King plus two singles on the second floor. Extra space for luggage and a sofa for evenings in.', 'image' => 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=80'],
+            ['name' => 'Executive Suite', 'code' => 'STE', 'price' => 24000, 'adults' => 2, 'children' => 2, 'occupancy' => 4, 'beds' => '1 king bed + sofa', 'description' => 'Top-floor suite with a sitting room, king bed and sofa bed. Spa credit can be posted to the folio.', 'image' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=80'],
         ] as $typeRow) {
             $types[$typeRow['code']] = RoomType::query()->create([
                 'hotel_id' => $hotel->id,
                 'name' => $typeRow['name'],
                 'code' => $typeRow['code'],
-                'description' => "{$typeRow['name']} with city or garden outlook.",
+                'description' => $typeRow['description'],
                 'base_price' => $typeRow['price'],
                 'max_adults' => $typeRow['adults'],
                 'max_children' => $typeRow['children'],
@@ -435,6 +439,8 @@ class HotelManagementSeeder extends Seeder
                 'bed_configuration' => $typeRow['beds'],
                 'is_active' => true,
             ]);
+
+            $this->attachPublicImage($types[$typeRow['code']], $typeRow['image']);
         }
 
         $roomLayout = [
@@ -790,7 +796,7 @@ class HotelManagementSeeder extends Seeder
     }
 
     /**
-     * @param  \Illuminate\Support\Collection<string, Room>  $rooms
+     * @param  Collection<string, Room>  $rooms
      * @param  array{housekeeping: User, admin: User}  $staff
      */
     protected function seedHousekeeping(Hotel $hotel, $rooms, Reservation $inHouse, array $staff): void
@@ -918,5 +924,14 @@ class HotelManagementSeeder extends Seeder
             'notes' => 'Walk-in lunch, table 4.',
             'opened_at' => now()->subMinutes(25),
         ]);
+    }
+
+    protected function attachPublicImage(Hotel|RoomType $model, string $url, string $collection = 'gallery'): void
+    {
+        try {
+            $model->addMediaFromUrl($url)->toMediaCollection($collection);
+        } catch (Throwable) {
+            // Seed still succeeds offline or if the image host is unreachable.
+        }
     }
 }

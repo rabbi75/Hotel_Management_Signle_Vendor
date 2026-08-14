@@ -47,4 +47,9 @@ enum ReservationStatus: string
     {
         return in_array($this, [self::Pending, self::Confirmed], true);
     }
+
+    public function canConfirm(): bool
+    {
+        return $this === self::Pending;
+    }
 }

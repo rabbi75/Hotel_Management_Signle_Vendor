@@ -15,6 +15,7 @@ use App\Modules\Hotel\Models\RoomType;
 use App\Modules\Reservation\Actions\CancelReservation;
 use App\Modules\Reservation\Actions\CheckInReservation;
 use App\Modules\Reservation\Actions\CheckOutReservation;
+use App\Modules\Reservation\Actions\ConfirmReservation;
 use App\Modules\Reservation\Actions\CreateReservation;
 use App\Modules\Reservation\Actions\UpdateReservation;
 use App\Modules\Reservation\DTOs\ReservationData;
@@ -22,6 +23,7 @@ use App\Modules\Reservation\Enums\BookingSource;
 use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Modules\Reservation\Http\Requests\CheckInReservationRequest;
 use App\Modules\Reservation\Http\Requests\CheckOutReservationRequest;
+use App\Modules\Reservation\Http\Requests\ConfirmReservationRequest;
 use App\Modules\Reservation\Http\Requests\StoreReservationRequest;
 use App\Modules\Reservation\Http\Requests\UpdateReservationRequest;
 use App\Modules\Reservation\Http\Resources\ReservationResource;
@@ -106,6 +108,7 @@ class ReservationController extends Controller
             'can' => [
                 'update' => Gate::allows('update', $reservation),
                 'cancel' => Gate::allows('cancel', $reservation),
+                'confirm' => Gate::allows('update', $reservation),
                 'check_in' => Gate::allows('checkIn', $reservation),
                 'check_out' => Gate::allows('checkOut', $reservation),
                 'view_folio' => Gate::allows('viewAny', GuestFolio::class),
@@ -139,6 +142,13 @@ class ReservationController extends Controller
         $cancelReservation->handle($reservation);
 
         return back()->with('success', __('Reservation cancelled.'));
+    }
+
+    public function confirm(ConfirmReservationRequest $request, Reservation $reservation, ConfirmReservation $confirm): RedirectResponse
+    {
+        $confirm->handle($reservation, $request->validated());
+
+        return back()->with('success', __('Reservation confirmed.'));
     }
 
     public function checkIn(CheckInReservationRequest $request, Reservation $reservation, CheckInReservation $checkIn): RedirectResponse

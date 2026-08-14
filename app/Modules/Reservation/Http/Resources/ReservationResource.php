@@ -55,6 +55,7 @@ class ReservationResource extends JsonResource
             'can_check_in' => $reservation->status->canCheckIn(),
             'can_check_out' => $reservation->status->canCheckOut(),
             'can_cancel' => $reservation->status->canCancel(),
+            'can_confirm' => $reservation->status->canConfirm(),
             'created_at' => $reservation->created_at?->toIso8601String(),
         ];
     }

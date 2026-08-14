@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\Reservation\Services;
 
 use App\Modules\Hotel\Enums\BedStatus;
-use App\Modules\Hotel\Enums\RoomStatus;
 use App\Modules\Hotel\Models\Bed;
 use App\Modules\Hotel\Models\Room;
 use App\Modules\Reservation\Enums\ReservationStatus;
@@ -54,6 +53,34 @@ class AvailabilityService
         throw ValidationException::withMessages([
             'room_id' => __('Assign a room or bed before confirming this reservation.'),
         ]);
+    }
+
+    public function firstAvailableRoom(
+        int $hotelId,
+        int $roomTypeId,
+        CarbonInterface $checkIn,
+        CarbonInterface $checkOut,
+        ?int $ignoreReservationId = null,
+    ): ?Room {
+        $rooms = Room::query()
+            ->where('hotel_id', $hotelId)
+            ->where('room_type_id', $roomTypeId)
+            ->where('is_active', true)
+            ->orderBy('number')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($rooms as $room) {
+            if ($room->status->blocksBooking()) {
+                continue;
+            }
+
+            if (! $this->hasOverlap('room_id', $room->id, $checkIn, $checkOut, $ignoreReservationId)) {
+                return $room;
+            }
+        }
+
+        return null;
     }
 
     /**

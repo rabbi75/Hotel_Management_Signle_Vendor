@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\CMS\Services;
 
+use App\Modules\CMS\Blocks\BlockSchema;
 use App\Modules\CMS\Enums\MenuLocation;
 use App\Modules\CMS\Models\Menu;
 use App\Modules\CMS\Models\MenuItem;
 use App\Modules\CMS\Models\Page;
 use App\Modules\CMS\Models\PageBlock;
 use App\Modules\Company\Models\Company;
+use App\Modules\OnlineBooking\Services\PublicRoomCatalogService;
 use App\Support\Tenancy\CompanyScope;
 use App\Support\Tenancy\CurrentCompany;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +27,7 @@ class PageRenderer
     public function __construct(
         protected BlockRegistry $blocks,
         protected CurrentCompany $tenant,
+        protected PublicRoomCatalogService $catalog,
     ) {}
 
     /**
@@ -78,7 +81,7 @@ class PageRenderer
                 'type' => $block->type,
                 'order' => $block->order,
                 'is_visible' => $block->is_visible,
-                'data' => $schema->sanitise($block->data),
+                'data' => $this->hydrateBlock($schema, $schema->sanitise($block->data)),
             ];
         }
 
@@ -205,6 +208,41 @@ class PageRenderer
                 fn (MenuItem $child): array => $this->menuItem($child),
                 $children->all(),
             )),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function hydrateBlock(BlockSchema $schema, array $data): array
+    {
+        if ($schema::type() !== 'rooms') {
+            return $data;
+        }
+
+        $catalog = $this->catalog->forPublicProperty();
+
+        if ($catalog === null) {
+            return [
+                ...$data,
+                'rooms' => [],
+                'booking_url' => '/book',
+                'check_in_date' => null,
+                'check_out_date' => null,
+                'slug' => null,
+                'currency' => null,
+            ];
+        }
+
+        return [
+            ...$data,
+            'rooms' => $catalog['rooms'],
+            'booking_url' => route('booking.show', $catalog['setting']->public_slug),
+            'check_in_date' => $catalog['check_in']->toDateString(),
+            'check_out_date' => $catalog['check_out']->toDateString(),
+            'slug' => $catalog['setting']->public_slug,
+            'currency' => $catalog['hotel']->currency,
         ];
     }
 

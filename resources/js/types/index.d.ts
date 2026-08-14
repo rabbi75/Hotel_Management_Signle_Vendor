@@ -177,6 +177,8 @@ export interface SharedProps {
     errors: Record<string, string>;
     /** True when this install is a single hotel, not a SaaS platform. */
     singleVendor: boolean;
+    /** Public booking URL when a property has online booking enabled. */
+    bookingUrl: string | null;
     [key: string]: unknown;
 }
 

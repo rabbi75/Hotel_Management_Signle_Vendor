@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Route;
 
 class OnlineBookingServiceProvider extends ModuleServiceProvider
 {
+    /**
+     * Public /book routes must stay at the site root, not under /admin.
+     */
+    protected bool $panelPrefixed = false;
+
     protected array $policies = [
         BookingSetting::class => BookingSettingPolicy::class,
     ];

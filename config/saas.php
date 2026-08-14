@@ -340,10 +340,10 @@ return [
         'reserved_slugs' => [
             'login', 'register', 'logout', 'dashboard', 'settings', 'profile',
             'users', 'roles', 'companies', 'departments', 'teams', 'search',
-            'notifications', 'audit', 'billing', 'media', 'chat', 'blog', 'api',
+            'notifications', 'audit', 'billing', 'media', 'chat', 'blog', 'api', 'book',
         ],
         'preview_ttl' => 900,
-        'block_types' => ['hero', 'features', 'pricing', 'testimonials', 'faq', 'contact', 'cta', 'richtext', 'gallery', 'stats'],
+        'block_types' => ['hero', 'features', 'pricing', 'testimonials', 'faq', 'contact', 'cta', 'richtext', 'gallery', 'stats', 'rooms'],
     ],
 
     /*

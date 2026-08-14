@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OnlineBooking\DTOs;
 
 use App\Modules\Reservation\Enums\BookingSource;
+use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Support\DTOs\Data;
 
 readonly class OnlineBookingData extends Data
@@ -24,5 +25,6 @@ readonly class OnlineBookingData extends Data
         public ?string $externalReference = null,
         public array $channelMetadata = [],
         public BookingSource $bookingSource = BookingSource::Website,
+        public ReservationStatus $status = ReservationStatus::Confirmed,
     ) {}
 }

@@ -15,7 +15,6 @@ use App\Modules\OnlineBooking\Services\AvailabilityQueryService;
 use App\Modules\OnlineBooking\Services\RateQuoteService;
 use App\Modules\Reservation\Actions\CreateReservation;
 use App\Modules\Reservation\DTOs\ReservationData;
-use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Modules\Reservation\Models\Reservation;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -96,7 +95,7 @@ class CreateOnlineBooking
                 specialRequests: $data->specialRequests,
                 total: (int) $quote['total'],
                 paidAmount: 0,
-                status: ReservationStatus::Confirmed,
+                status: $data->status,
                 externalReference: $data->externalReference,
                 channelMetadata: $data->channelMetadata,
             ));
