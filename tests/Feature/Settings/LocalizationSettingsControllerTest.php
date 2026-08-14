@@ -5,7 +5,7 @@ declare(strict_types=1);
 use function Pest\Laravel\get;
 
 it('redirects a guest to the login screen', function (): void {
-    get(route('admin.settings.localization.index'))->assertRedirect(route('admin.login'));
+    get(route('admin.settings.localization.index'))->assertRedirect(route('login'));
 });
 
 it('forbids a member without the general update permission', function (): void {

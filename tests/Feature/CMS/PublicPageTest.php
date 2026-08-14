@@ -91,20 +91,14 @@ it('does not shadow application routes with the catch-all', function (): void {
     $admin = memberWith(['dashboard.view', 'users.view', 'settings.view'], $company)->refresh();
 
     actingAsMember($admin, $company)
-        ->get('/dashboard', inertiaHeaders())
-        ->assertOk()
-        ->assertJsonPath('component', 'dashboard/index');
+        ->get('/dashboard')
+        ->assertRedirect('/admin/dashboard');
 
     actingAsMember($admin, $company)
-        ->get('/users', inertiaHeaders())
-        ->assertOk()
-        ->assertJsonPath('component', 'users/index');
+        ->get('/users')
+        ->assertRedirect('/admin/users');
 
-    // `/settings` now redirects to the profile screen rather than rendering a
-    // panel of its own — the installation settings it used to list belong to
-    // the operator console. Still an application route, so still not the
-    // catch-all's to answer.
     actingAsMember($admin, $company)
-        ->get('/settings', inertiaHeaders())
-        ->assertRedirect('/profile');
+        ->get('/settings')
+        ->assertRedirect('/admin/profile');
 });

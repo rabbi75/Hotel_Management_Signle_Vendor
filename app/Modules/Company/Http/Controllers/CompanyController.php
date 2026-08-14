@@ -30,11 +30,19 @@ class CompanyController extends Controller
     /**
      * The workspaces the signed-in user belongs to.
      */
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         $user = $this->actor($request);
 
         Gate::authorize('viewAny', Company::class);
+
+        if (single_vendor()) {
+            $current = current_company();
+
+            abort_unless($current instanceof Company, 404);
+
+            return redirect()->route('companies.show', $current);
+        }
 
         $companies = $user->companies()->with('media')->get();
 

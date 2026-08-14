@@ -16,6 +16,10 @@ use Illuminate\View\View;
 
 class SEOServiceProvider extends ModuleServiceProvider
 {
+    /**
+     * robots.txt and sitemap.xml stay at the site root.
+     */
+    protected bool $panelPrefixed = false;
     protected array $policies = [
         SeoMeta::class => SeoPolicy::class,
     ];
@@ -78,6 +82,15 @@ class SEOServiceProvider extends ModuleServiceProvider
 
     protected function registerNavigation(): void
     {
-        // Public-site SEO is managed from the operator console.
+        $this->app->make(\App\Support\Navigation\NavigationBuilder::class)->register(
+            \App\Support\Navigation\NavigationSection::make('Website', 50)->items([
+                \App\Support\Navigation\NavigationItem::make('SEO', 'seo.index')
+                    ->icon('globe')
+                    ->permissions('seo.view')
+                    ->feature('seo')
+                    ->activeWhen('seo.*')
+                    ->order(80),
+            ]),
+        );
     }
 }

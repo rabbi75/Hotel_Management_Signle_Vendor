@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Settings\Http\Middleware;
 
 use App\Modules\Platform\Models\Admin;
+use App\Modules\User\Models\User;
 use App\Support\Settings\SettingsRepository;
 use Closure;
 use Illuminate\Http\Request;
@@ -73,11 +74,17 @@ class CheckMaintenanceMode
             return true;
         }
 
-        // Only an operator works through a maintenance window. A tenant user —
-        // even a workspace owner — is exactly who the screen is up for.
+        // An operator — console admin or hotel super-admin — works through a
+        // maintenance window so they can turn it back off.
         $admin = $request->user('admin');
 
-        return $admin instanceof Admin && $admin->can('platform.settings.maintenance');
+        if ($admin instanceof Admin && $admin->can('platform.settings.maintenance')) {
+            return true;
+        }
+
+        $user = $request->user('web');
+
+        return $user instanceof User && $user->can('platform.settings.maintenance');
     }
 
     protected function secret(): ?string

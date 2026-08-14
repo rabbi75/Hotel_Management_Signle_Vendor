@@ -108,6 +108,8 @@ class HandleInertiaRequests extends Middleware
                 'impersonator' => fn (): ?array => $this->impersonator($request),
             ],
 
+            'singleVendor' => single_vendor(),
+
             'navigation' => fn (): array => $user === null ? [] : app(NavigationBuilder::class)->for($user),
 
             'notifications' => fn (): array => $user === null

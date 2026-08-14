@@ -76,3 +76,29 @@ if (! function_exists('current_hotel_id')) {
         return current_hotel()?->id;
     }
 }
+
+if (! function_exists('single_vendor')) {
+    /**
+     * Whether this installation is a single-property hotel (no SaaS tenants).
+     */
+    function single_vendor(): bool
+    {
+        return (bool) config('saas.single_vendor', true);
+    }
+}
+
+if (! function_exists('panel_prefix')) {
+    /**
+     * URL prefix for authenticated panel routes. Empty in SaaS mode.
+     */
+    function panel_prefix(string $path = ''): string
+    {
+        $base = single_vendor() ? 'admin' : '';
+
+        if ($path === '') {
+            return $base;
+        }
+
+        return $base === '' ? $path : $base.'/'.$path;
+    }
+}

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\SetCurrentCompany;
 use App\Modules\Platform\Http\Middleware\ConfirmAdminPassword;
 use App\Modules\Platform\Http\Middleware\EnsureActiveAdmin;
 use App\Modules\Settings\Http\Controllers\AiSettingsController;
@@ -35,11 +34,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// -- The operator's installation settings -------------------------------------
+// -- Installation settings ----------------------------------------------------
 Route::prefix('admin/settings')
     ->name('admin.settings.')
-    ->middleware(['auth:admin', EnsureActiveAdmin::class])
-    ->withoutMiddleware(SetCurrentCompany::class)
+    ->middleware(['auth:web,admin', EnsureActiveAdmin::class])
     ->group(function (): void {
         Route::get('/', [GeneralSettingsController::class, 'index'])->name('index');
         Route::put('general', [GeneralSettingsController::class, 'update'])->name('general.update');
@@ -83,15 +81,9 @@ Route::prefix('admin/settings')
 
 // -- The signed-in member's own account ---------------------------------------
 Route::middleware(['auth', 'verified'])
-    ->prefix('settings')
+    ->prefix(panel_prefix('settings'))
     ->name('settings.')
     ->group(function (): void {
-        // Kept as a redirect rather than dropped with the panels it used to
-        // list. `/settings` is a URL people have bookmarked and the account menu
-        // still reaches for, and an unclaimed path falls through to the CMS
-        // catch-all — so removing it would turn "Settings" into a page lookup.
-        Route::redirect('/', '/profile')->name('index');
-
         // Fortify owns `PUT user/password`; it just never ships a screen for it.
         Route::get('password', [PasswordSettingsController::class, 'edit'])->name('password.edit');
     });

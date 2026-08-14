@@ -39,6 +39,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         foreach ($this->core as $seeder) {
+            if (single_vendor() && $seeder === AdminSeeder::class) {
+                continue;
+            }
+
             if (class_exists($seeder)) {
                 $this->call($seeder);
             }
@@ -46,13 +50,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call(AdminUserSeeder::class);
 
-        // Sample content is opt-in: a production deploy runs `db:seed` too and
-        // must not fabricate accounts there.
         if (app()->environment('local') && (bool) config('saas.seed.demo_data')) {
-            // Before DemoDataSeeder, which populates the first two workspaces:
-            // the demo tenant is the second, so it gets departments and members
-            // rather than an empty shell.
-            $this->call(DemoTenantSeeder::class);
+            if (! single_vendor()) {
+                $this->call(DemoTenantSeeder::class);
+            }
+
             $this->call(DemoDataSeeder::class);
         }
     }

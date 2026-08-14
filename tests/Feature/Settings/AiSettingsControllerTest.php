@@ -20,7 +20,7 @@ function confirmAiSettingsPassword(): void
 }
 
 it('redirects a guest to the login screen', function (): void {
-    get(route('admin.settings.ai.index'))->assertRedirect(route('admin.login'));
+    get(route('admin.settings.ai.index'))->assertRedirect(route('login'));
 });
 
 it('challenges for the password before showing AI credentials', function (): void {
@@ -28,7 +28,7 @@ it('challenges for the password before showing AI credentials', function (): voi
 
     actingAsAdmin($admin)
         ->get(route('admin.settings.ai.index'))
-        ->assertRedirect(route('admin.password.confirm'));
+        ->assertRedirect(route('password.confirm'));
 });
 
 it('forbids a member without the AI manage permission', function (): void {

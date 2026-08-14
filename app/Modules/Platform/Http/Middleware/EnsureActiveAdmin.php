@@ -8,6 +8,7 @@ use App\Modules\Platform\Models\Admin;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -28,7 +29,9 @@ class EnsureActiveAdmin
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()->route('admin.login')
+            $login = Route::has('admin.login') ? 'admin.login' : 'login';
+
+            return redirect()->route($login)
                 ->withErrors(['email' => __('This account has been deactivated.')]);
         }
 

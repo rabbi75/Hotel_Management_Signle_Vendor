@@ -368,7 +368,7 @@ class InstallController extends Controller
         $this->state->clear();
 
         return view('install.finish', [
-            'loginUrl' => route('admin.login'),
+            'loginUrl' => route('login'),
             'steps' => $this->steps('finish'),
             'checklist' => [
                 'Run a queue worker: php artisan queue:work',

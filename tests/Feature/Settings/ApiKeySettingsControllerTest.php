@@ -22,7 +22,7 @@ function confirmSettingsPassword(): void
 }
 
 it('redirects a guest to the login screen', function (): void {
-    get(route('admin.settings.api_keys.index'))->assertRedirect(route('admin.login'));
+    get(route('admin.settings.api_keys.index'))->assertRedirect(route('login'));
 });
 
 it('challenges for the password before showing credentials', function (): void {
@@ -30,7 +30,7 @@ it('challenges for the password before showing credentials', function (): void {
 
     actingAsAdmin($admin)
         ->get(route('admin.settings.api_keys.index'))
-        ->assertRedirect(route('admin.password.confirm'));
+        ->assertRedirect(route('password.confirm'));
 });
 
 it('forbids a member without the manage permission', function (): void {

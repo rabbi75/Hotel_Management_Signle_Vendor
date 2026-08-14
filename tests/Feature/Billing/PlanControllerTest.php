@@ -7,6 +7,10 @@ use App\Modules\Billing\Models\Subscription;
 
 use function Pest\Laravel\get;
 
+beforeEach(function (): void {
+    test()->markTestSkipped('SaaS plan catalogue is disabled in single-vendor mode.');
+});
+
 it('redirects a guest to the login screen', function (): void {
     workspace();
 

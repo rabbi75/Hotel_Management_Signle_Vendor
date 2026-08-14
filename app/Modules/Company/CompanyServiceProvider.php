@@ -30,6 +30,12 @@ class CompanyServiceProvider extends ModuleServiceProvider
     {
         $this->app->make(NavigationBuilder::class)->register(
             NavigationSection::make('Organisation', 30)->items([
+                NavigationItem::make('Organization', 'companies.index')
+                    ->icon('building-2')
+                    ->permissions('companies.view')
+                    ->activeWhen('companies.show', 'companies.edit', 'companies.index')
+                    ->order(5),
+
                 NavigationItem::make('Members', 'companies.members.index')
                     ->icon('users-round')
                     ->permissions('companies.members.view')

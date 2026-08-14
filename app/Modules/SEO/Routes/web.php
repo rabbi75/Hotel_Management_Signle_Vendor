@@ -8,7 +8,7 @@ use App\Modules\SEO\Http\Controllers\SeoSettingsController;
 use App\Modules\SEO\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified', 'plan.feature:seo'])->prefix('seo')->name('seo.')->group(function (): void {
+Route::middleware(['auth', 'verified', 'plan.feature:seo'])->prefix(panel_prefix('seo'))->name('seo.')->group(function (): void {
     Route::get('/', [SeoSettingsController::class, 'index'])->name('index');
 
     Route::get('settings', [SeoSettingsController::class, 'edit'])->name('settings.edit');

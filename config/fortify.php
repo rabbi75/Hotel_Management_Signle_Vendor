@@ -78,7 +78,7 @@ return [
     |
     */
 
-    'home' => '/dashboard',
+    'home' => filter_var(env('SAAS_SINGLE_VENDOR', true), FILTER_VALIDATE_BOOL) ? '/admin/dashboard' : '/dashboard',
 
     /*
     |--------------------------------------------------------------------------
@@ -95,7 +95,7 @@ return [
     |
     */
 
-    'prefix' => '',
+    'prefix' => filter_var(env('SAAS_SINGLE_VENDOR', true), FILTER_VALIDATE_BOOL) ? 'admin' : '',
 
     'domain' => null,
 
@@ -176,7 +176,9 @@ return [
     */
 
     'features' => array_values(array_filter([
-        Features::registration(),
+        filter_var(env('SAAS_REGISTRATION_ENABLED', false), FILTER_VALIDATE_BOOL)
+            ? Features::registration()
+            : null,
         Features::resetPasswords(),
         filter_var(env('SAAS_EMAIL_VERIFICATION_REQUIRED', true), FILTER_VALIDATE_BOOL)
             ? Features::emailVerification()

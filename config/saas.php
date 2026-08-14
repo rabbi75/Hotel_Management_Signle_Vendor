@@ -6,6 +6,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Deployment mode
+    |--------------------------------------------------------------------------
+    |
+    | Single-vendor runs one hotel business on this installation: staff sign in
+    | at /admin, there is no tenant/client panel, and SaaS tenancy (plans,
+    | impersonation, extra companies) is switched off.
+    |
+    */
+
+    'single_vendor' => (bool) env('SAAS_SINGLE_VENDOR', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Brand
     |--------------------------------------------------------------------------
     |
@@ -27,7 +40,7 @@ return [
     */
 
     'auth' => [
-        'registration_enabled' => (bool) env('SAAS_REGISTRATION_ENABLED', true),
+        'registration_enabled' => (bool) env('SAAS_REGISTRATION_ENABLED', false),
         'email_verification_required' => (bool) env('SAAS_EMAIL_VERIFICATION_REQUIRED', true),
         'two_factor_enabled' => (bool) env('SAAS_TWO_FACTOR_ENABLED', true),
 
@@ -56,7 +69,7 @@ return [
     'seed' => [
         'admin_email' => env('SAAS_ADMIN_EMAIL', 'admin@example.com'),
         'admin_password' => env('SAAS_ADMIN_PASSWORD', 'password'),
-        'admin_workspace' => env('SAAS_ADMIN_WORKSPACE', 'Acme Inc.'),
+        'admin_workspace' => env('SAAS_ADMIN_WORKSPACE', 'Hotel'),
         'demo_data' => (bool) env('SAAS_SEED_DEMO_DATA', true),
 
         // An ordinary workspace owner, seeded alongside the demo content so the
@@ -91,7 +104,7 @@ return [
 
     'workspace' => [
         // Users may belong to many companies; this caps how many they can own.
-        'max_owned_per_user' => (int) env('SAAS_MAX_OWNED_WORKSPACES', 10),
+        'max_owned_per_user' => (int) env('SAAS_MAX_OWNED_WORKSPACES', 1),
 
         // Invitation links expire after this many days.
         'invitation_expires_days' => (int) env('SAAS_INVITATION_EXPIRES_DAYS', 7),

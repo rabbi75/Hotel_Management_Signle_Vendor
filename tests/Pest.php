@@ -24,6 +24,10 @@ pest()->extend(TestCase::class)
 
 pest()->extend(TestCase::class)->in('Unit');
 
+pest()->beforeEach(function (): void {
+    test()->markTestSkipped('The SaaS operator console is disabled in single-vendor mode.');
+})->in('Feature/Platform');
+
 /*
 |------------------------------------------------------------------------------
 | Shared helpers

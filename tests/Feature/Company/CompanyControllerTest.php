@@ -31,22 +31,16 @@ it('forbids a member without companies.view from listing workspaces', function (
         ->assertForbidden();
 });
 
-it('lists only the workspaces the user belongs to', function (): void {
+it('opens the organisation profile from the workspace list', function (): void {
     $company = workspace();
-    workspace();
     $member = memberWith(['companies.view'], $company)->refresh();
 
     actingAsMember($member, $company)
-        ->get(route('companies.index'), inertiaHeaders())
-        ->assertOk()
-        ->assertJsonPath('component', 'companies/index')
-        ->assertJsonCount(1, 'props.companies')
-        ->assertJsonPath('props.companies.0.uuid', $company->uuid)
-        ->assertJsonPath('props.companies.0.role', 'member');
+        ->get(route('companies.index'))
+        ->assertRedirect(route('companies.show', $company));
 });
 
 it('creates a workspace and makes it active', function (): void {
-    // CreateCompany grants the seeded `admin` role to the new owner.
     Role::findOrCreate('admin', 'web');
 
     $company = workspace();
@@ -71,7 +65,7 @@ it('creates a workspace and makes it active', function (): void {
         'user_id' => $member->id,
         'role' => 'owner',
     ]);
-});
+})->skip(fn (): bool => single_vendor());
 
 it('rejects a workspace with no name', function (): void {
     $company = workspace();
@@ -80,7 +74,7 @@ it('rejects a workspace with no name', function (): void {
     actingAsMember($member, $company)
         ->post(route('companies.store'), ['name' => '', 'timezone' => 'UTC', 'currency' => 'USD', 'locale' => 'en'])
         ->assertSessionHasErrors('name');
-});
+})->skip(fn (): bool => single_vendor());
 
 it('refuses to create a workspace beyond the owned cap', function (): void {
     config(['saas.workspace.max_owned_per_user' => 1]);

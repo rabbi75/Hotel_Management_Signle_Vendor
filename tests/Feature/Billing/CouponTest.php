@@ -20,7 +20,7 @@ it('redirects a guest away from the coupon admin', function (): void {
     workspace();
 
     get(route('admin.coupons.index'))->assertRedirect(route('admin.login'));
-});
+})->skip(fn (): bool => single_vendor());
 
 it('keeps a tenant member out of the coupon console', function (): void {
     $company = workspace();
@@ -29,7 +29,7 @@ it('keeps a tenant member out of the coupon console', function (): void {
     actingAsMember($member, $company)
         ->get(route('admin.coupons.index'))
         ->assertRedirect(route('admin.login'));
-});
+})->skip(fn (): bool => single_vendor());
 
 it('creates a percentage coupon', function (): void {
     $company = workspace();
@@ -44,7 +44,7 @@ it('creates a percentage coupon', function (): void {
         ->assertRedirect();
 
     $this->assertDatabaseHas('coupons', ['code' => 'LAUNCH20', 'type' => 'percent', 'value' => 20]);
-});
+})->skip(fn (): bool => single_vendor());
 
 it('rejects a percentage above 100', function (): void {
     $company = workspace();
@@ -53,7 +53,7 @@ it('rejects a percentage above 100', function (): void {
     actingAsAdmin($admin)
         ->post(route('admin.coupons.store'), ['code' => 'TOOMUCH', 'type' => 'percent', 'value' => 150])
         ->assertSessionHasErrors('value');
-});
+})->skip(fn (): bool => single_vendor());
 
 it('stores a fixed coupon in minor units', function (): void {
     $company = workspace();
@@ -69,7 +69,7 @@ it('stores a fixed coupon in minor units', function (): void {
         ->assertRedirect();
 
     $this->assertDatabaseHas('coupons', ['code' => 'FIVEOFF', 'value' => 500]);
-});
+})->skip(fn (): bool => single_vendor());
 
 it('cannot be redeemed past its redemption limit', function (): void {
     $first = workspace();

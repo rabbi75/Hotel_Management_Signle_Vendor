@@ -68,7 +68,9 @@ class AdminUserSeeder extends Seeder
             $admin->forceFill(['current_company_id' => $company->id])->save();
             $admin->assignRole((string) config('permissions.super_admin_role', 'super-admin'));
 
-            $this->subscribeToTopPlan($company);
+            if (! single_vendor()) {
+                $this->subscribeToTopPlan($company);
+            }
         });
 
         $this->command?->info("Created super admin {$email}.");

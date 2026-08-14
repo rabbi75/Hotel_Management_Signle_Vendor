@@ -19,7 +19,7 @@ export interface AppTopbarProps {
 }
 
 export function AppTopbar({ breadcrumbs = [], className }: AppTopbarProps) {
-    const { auth } = usePage<SharedProps>().props;
+    const { auth, singleVendor } = usePage<SharedProps>().props;
     const toggleSidebar = useUiStore((state) => state.toggleSidebar);
     const setSidebarMobileOpen = useUiStore((state) => state.setSidebarMobileOpen);
     const setCommandPaletteOpen = useUiStore((state) => state.setCommandPaletteOpen);
@@ -42,7 +42,7 @@ export function AppTopbar({ breadcrumbs = [], className }: AppTopbarProps) {
             <div className="flex min-w-0 flex-1 items-center gap-2">
                 <Breadcrumbs items={breadcrumbs} className="hidden sm:flex" />
                 <Separator orientation="vertical" className="hidden h-5 sm:block" />
-                <TenantSwitcher variant="topbar" />
+                {!singleVendor && <TenantSwitcher variant="topbar" />}
                 <WorkspaceSwitcher variant="topbar" />
             </div>
 

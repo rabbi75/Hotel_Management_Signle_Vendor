@@ -40,6 +40,12 @@ abstract class ModuleServiceProvider extends ServiceProvider
      */
     protected array $apiMiddleware = [];
 
+    /**
+     * Whether this module's web routes should sit under /admin in single-vendor
+     * mode. Public-facing or already-prefixed modules set this to false.
+     */
+    protected bool $panelPrefixed = true;
+
     public function boot(): void
     {
         $this->registerTranslations();
@@ -98,8 +104,14 @@ abstract class ModuleServiceProvider extends ServiceProvider
         $web = $this->path('Routes/web.php');
 
         if (is_file($web)) {
-            Route::middleware(array_merge(['web'], $this->webMiddleware))
-                ->group($web);
+            $group = Route::middleware(array_merge(['web'], $this->webMiddleware));
+            $prefix = $this->webRoutePrefix();
+
+            if ($prefix !== '') {
+                $group = $group->prefix($prefix);
+            }
+
+            $group->group($web);
         }
 
         $api = $this->path('Routes/api.php');
@@ -144,5 +156,17 @@ abstract class ModuleServiceProvider extends ServiceProvider
         foreach ($this->policies as $model => $policy) {
             Gate::policy($model, $policy);
         }
+    }
+
+    /**
+     * URL prefix for this module's authenticated web routes.
+     */
+    protected function webRoutePrefix(): string
+    {
+        if (! $this->panelPrefixed || ! single_vendor()) {
+            return '';
+        }
+
+        return 'admin';
     }
 }

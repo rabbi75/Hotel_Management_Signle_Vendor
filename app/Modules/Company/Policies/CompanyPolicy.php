@@ -21,6 +21,10 @@ class CompanyPolicy
 
     public function create(User $user): bool
     {
+        if (single_vendor()) {
+            return false;
+        }
+
         return $user->ownedCompanies()->count() < (int) config('saas.workspace.max_owned_per_user');
     }
 

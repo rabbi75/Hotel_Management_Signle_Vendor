@@ -83,6 +83,10 @@ class BillingServiceProvider extends ModuleServiceProvider
 
     protected function registerNavigation(): void
     {
+        if (single_vendor()) {
+            return;
+        }
+
         $this->app->make(NavigationBuilder::class)->register(
             NavigationSection::make('Billing', 70)->items([
                 NavigationItem::make('Subscription', 'billing.index')

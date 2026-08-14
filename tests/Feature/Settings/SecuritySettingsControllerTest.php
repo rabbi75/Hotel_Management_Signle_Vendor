@@ -5,7 +5,7 @@ declare(strict_types=1);
 use function Pest\Laravel\get;
 
 it('redirects a guest to the login screen', function (): void {
-    get(route('admin.settings.security.index'))->assertRedirect(route('admin.login'));
+    get(route('admin.settings.security.index'))->assertRedirect(route('login'));
 });
 
 it('challenges for the password before showing the panel', function (): void {
@@ -13,7 +13,7 @@ it('challenges for the password before showing the panel', function (): void {
 
     actingAsAdmin($admin)
         ->get(route('admin.settings.security.index'))
-        ->assertRedirect(route('admin.password.confirm'));
+        ->assertRedirect(route('password.confirm'));
 });
 
 it('forbids a member without the security update permission', function (): void {

@@ -8,7 +8,7 @@ use App\Support\Settings\SettingsRepository;
 use function Pest\Laravel\get;
 
 it('redirects a guest to the login screen', function (): void {
-    get(route('admin.settings.maintenance.index'))->assertRedirect(route('admin.login'));
+    get(route('admin.settings.maintenance.index'))->assertRedirect(route('login'));
 });
 
 it('forbids a member without the toggle permission', function (): void {

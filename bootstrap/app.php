@@ -94,15 +94,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // an already-signed-in admin bounced off a guest route goes to the
         // console home.
         $middleware->redirectGuestsTo(
-            fn (Request $request): string => $request->is('admin', 'admin/*')
-                ? route('admin.login')
-                : route('login'),
+            fn (Request $request): string => route('login'),
         );
 
         $middleware->redirectUsersTo(
-            fn (Request $request): string => $request->is('admin', 'admin/*')
-                ? route('admin.dashboard')
-                : '/dashboard',
+            fn (Request $request): string => route('dashboard'),
         );
 
         // The tenant must be resolved after the session is available but before

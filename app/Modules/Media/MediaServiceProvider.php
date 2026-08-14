@@ -87,6 +87,14 @@ class MediaServiceProvider extends ModuleServiceProvider
 
     protected function registerNavigation(): void
     {
-        // Media library for the public site is managed from the operator console.
+        $this->app->make(\App\Support\Navigation\NavigationBuilder::class)->register(
+            \App\Support\Navigation\NavigationSection::make('Website', 50)->items([
+                \App\Support\Navigation\NavigationItem::make('Media', 'media.index')
+                    ->icon('images')
+                    ->permissions('media.view')
+                    ->activeWhen('media.*')
+                    ->order(70),
+            ]),
+        );
     }
 }

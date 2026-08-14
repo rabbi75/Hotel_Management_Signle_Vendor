@@ -7,7 +7,7 @@ use App\Modules\Settings\Models\Setting;
 use function Pest\Laravel\get;
 
 it('redirects a guest to the login screen', function (): void {
-    get(route('admin.settings.index'))->assertRedirect(route('admin.login'));
+    get(route('admin.settings.index'))->assertRedirect(route('login'));
 });
 
 it('forbids a member without the view permission', function (): void {

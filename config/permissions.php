@@ -54,7 +54,7 @@ return [
         ],
 
         'companies' => [
-            'label' => 'Tenants',
+            'label' => 'Organisation',
             'permissions' => [
                 'companies.view' => 'View tenant',
                 'companies.update' => 'Edit tenant settings',
@@ -414,7 +414,7 @@ return [
     'roles' => [
         'super-admin' => [
             'label' => 'Super admin',
-            'description' => 'Unrestricted access, including cross-workspace administration.',
+            'description' => 'Unrestricted access to the hotel installation.',
             'permissions' => [],
         ],
 
@@ -431,6 +431,7 @@ return [
                 'housekeeping.*', 'maintenance.*', 'hotel_reports.*',
                 'online_booking.*', 'hotel_pos.*',
                 'support.*',
+                'platform.settings.*',
             ],
         ],
 

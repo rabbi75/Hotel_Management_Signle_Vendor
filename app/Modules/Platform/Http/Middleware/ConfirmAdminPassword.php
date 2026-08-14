@@ -6,6 +6,7 @@ namespace App\Modules\Platform\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -32,22 +33,31 @@ class ConfirmAdminPassword
         }
 
         return redirect()
-            ->route('admin.password.confirm')
+            ->route($this->confirmRoute())
             ->with('intended_url', $request->fullUrl());
     }
 
     protected function recentlyConfirmed(Request $request): bool
     {
-        $confirmedAt = $request->session()->get(self::SESSION_KEY);
+        foreach ([self::SESSION_KEY, 'auth.password_confirmed_at'] as $key) {
+            $confirmedAt = $request->session()->get($key);
 
-        if (! is_int($confirmedAt)) {
-            return false;
+            if (! is_int($confirmedAt) && ! is_numeric($confirmedAt)) {
+                continue;
+            }
+
+            $timeout = (int) config('auth.password_timeout', 10800);
+
+            if ((time() - (int) $confirmedAt) < $timeout) {
+                return true;
+            }
         }
 
-        // Same window Fortify uses, read from the same config key so an
-        // installation that tightens one tightens both.
-        $timeout = (int) config('auth.password_timeout', 10800);
+        return false;
+    }
 
-        return (time() - $confirmedAt) < $timeout;
+    protected function confirmRoute(): string
+    {
+        return Route::has('admin.password.confirm') ? 'admin.password.confirm' : 'password.confirm';
     }
 }

@@ -2,7 +2,7 @@ import { Icon } from '@/components/app-shell/icon';
 import { PageHeader } from '@/components/app-shell/page-header';
 import { currentRouteName, isNavItemActive, routeUrl } from '@/components/app-shell/routing';
 import { Separator } from '@/components/ui/separator';
-import { AdminLayout } from '@/layouts/admin-layout';
+import { AppLayout } from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -78,11 +78,11 @@ export function AdminSettingsLayout({ title, description, breadcrumbs, actions, 
     const crumbs: BreadcrumbItem[] = breadcrumbs ?? [{ label: 'Settings' }, { label: title }];
 
     return (
-        <AdminLayout title={`${title} settings`} breadcrumbs={crumbs}>
+        <AppLayout title={`${title} settings`} breadcrumbs={crumbs}>
             <div className="mx-auto w-full max-w-5xl space-y-6">
                 <PageHeader
-                    title="Installation settings"
-                    description="Configuration for the whole product. These apply to every workspace."
+                    title="System settings"
+                    description="Configuration for this hotel installation."
                     actions={actions}
                 />
                 <Separator />
@@ -130,7 +130,7 @@ export function AdminSettingsLayout({ title, description, breadcrumbs, actions, 
                     </section>
                 </div>
             </div>
-        </AdminLayout>
+        </AppLayout>
     );
 }
 

@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'verified', 'plan.feature:blog'])->prefix('blog')->name('blog.')->group(function (): void {
+Route::middleware(['auth', 'verified', 'plan.feature:blog'])->prefix(panel_prefix('blog'))->name('blog.')->group(function (): void {
 
     // -- Posts ---------------------------------------------------------------
     Route::prefix('posts')->name('posts.')->group(function (): void {

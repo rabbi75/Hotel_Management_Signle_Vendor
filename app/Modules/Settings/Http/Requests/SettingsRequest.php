@@ -6,6 +6,7 @@ namespace App\Modules\Settings\Http\Requests;
 
 use App\Modules\Platform\Models\Admin;
 use App\Modules\Settings\Support\SettingsSchema;
+use App\Modules\User\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -28,7 +29,13 @@ abstract class SettingsRequest extends FormRequest
     {
         $admin = $this->user('admin');
 
-        return $admin instanceof Admin && $admin->can($this->permission());
+        if ($admin instanceof Admin && $admin->can($this->permission())) {
+            return true;
+        }
+
+        $user = $this->user('web');
+
+        return $user instanceof User && $user->can($this->permission());
     }
 
     /**

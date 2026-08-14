@@ -15,7 +15,7 @@ it('redirects the application to the installer when not installed', function ():
 it('blocks the installer once the application is installed', function (): void {
     config(['app.installed' => true]);
 
-    $this->get(route('install.requirements'))->assertRedirect(route('admin.login'));
+    $this->get(route('install.requirements'))->assertRedirect(route('login'));
 });
 
 it('shows requirement checks on the first installer step', function (): void {

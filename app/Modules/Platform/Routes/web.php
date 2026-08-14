@@ -47,6 +47,10 @@ use App\Modules\Platform\Http\Controllers\TenantSubscriptionController;
 use App\Modules\Platform\Http\Middleware\EnsureActiveAdmin;
 use Illuminate\Support\Facades\Route;
 
+if (single_vendor()) {
+    return;
+}
+
 /*
 |------------------------------------------------------------------------------
 | Platform (operator console) routes

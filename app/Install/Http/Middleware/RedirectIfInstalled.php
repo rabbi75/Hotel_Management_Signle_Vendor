@@ -16,7 +16,7 @@ class RedirectIfInstalled
     public function handle(Request $request, Closure $next): Response
     {
         if (config('app.installed')) {
-            return redirect()->route('admin.login');
+            return redirect()->route('login');
         }
 
         return $next($request);

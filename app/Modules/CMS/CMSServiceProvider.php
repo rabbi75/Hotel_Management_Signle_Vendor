@@ -13,6 +13,9 @@ use App\Modules\CMS\Services\BlockRegistry;
 use App\Modules\CMS\Services\PageRenderer;
 use App\Modules\CMS\Services\PageService;
 use App\Support\Modules\ModuleServiceProvider;
+use App\Support\Navigation\NavigationBuilder;
+use App\Support\Navigation\NavigationItem;
+use App\Support\Navigation\NavigationSection;
 use Illuminate\Support\Facades\Route;
 
 class CMSServiceProvider extends ModuleServiceProvider
@@ -33,10 +36,30 @@ class CMSServiceProvider extends ModuleServiceProvider
 
     protected function bootModule(): void
     {
-        // Pages and menus for the public site live in the operator console.
-        // Tenants manage hotels, not the marketing CMS.
-
+        // Public-site CMS is edited from the same admin panel as hotel operations.
+        $this->registerNavigation();
         $this->registerPublicCatchAll();
+    }
+
+    protected function registerNavigation(): void
+    {
+        $this->app->make(NavigationBuilder::class)->register(
+            NavigationSection::make('Website', 50)->items([
+                NavigationItem::make('Pages', 'cms.pages.index')
+                    ->icon('file-text')
+                    ->permissions('cms.pages.view')
+                    ->feature('cms')
+                    ->activeWhen('cms.pages.*', 'cms.blocks.*')
+                    ->order(10),
+
+                NavigationItem::make('Menus', 'cms.menus.index')
+                    ->icon('list-tree')
+                    ->permissions('cms.menus.manage')
+                    ->feature('cms')
+                    ->activeWhen('cms.menus.*', 'cms.menu-items.*')
+                    ->order(20),
+            ]),
+        );
     }
 
     /**

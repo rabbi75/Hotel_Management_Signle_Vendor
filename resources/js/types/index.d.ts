@@ -175,6 +175,8 @@ export interface SharedProps {
     locales: Record<string, LocaleDefinition>;
     ziggy: ZiggyConfig & { location: string };
     errors: Record<string, string>;
+    /** True when this install is a single hotel, not a SaaS platform. */
+    singleVendor: boolean;
     [key: string]: unknown;
 }
 

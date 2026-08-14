@@ -49,7 +49,7 @@ export default function Login({ canResetPassword, canRegister, status, socials }
     return (
         <AuthLayout
             title="Sign in"
-            description="Welcome back. Enter your details to continue."
+            description="Sign in to the hotel admin panel."
             footer={
                 canRegister ? (
                     <>

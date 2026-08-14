@@ -25,6 +25,10 @@ class SupportServiceProvider extends ModuleServiceProvider
 
     protected function bootModule(): void
     {
+        if (single_vendor()) {
+            return;
+        }
+
         $this->app->make(NavigationBuilder::class)->register(
             NavigationSection::make('Administration', 60)->items([
                 NavigationItem::make('Support', 'support.index')

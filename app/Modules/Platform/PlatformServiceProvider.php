@@ -16,6 +16,10 @@ use App\Support\Modules\ModuleServiceProvider;
  */
 class PlatformServiceProvider extends ModuleServiceProvider
 {
+    /**
+     * Platform routes already live under /admin.
+     */
+    protected bool $panelPrefixed = false;
     protected function registerModule(): void
     {
         $this->app->singleton(PlatformMetrics::class);

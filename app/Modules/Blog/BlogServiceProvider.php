@@ -19,6 +19,10 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 
 class BlogServiceProvider extends ModuleServiceProvider
 {
+    /**
+     * Public blog URLs stay at /blog; the editor is prefixed in Routes/web.php.
+     */
+    protected bool $panelPrefixed = false;
     protected array $policies = [
         Post::class => PostPolicy::class,
         Category::class => CategoryPolicy::class,
@@ -69,7 +73,36 @@ class BlogServiceProvider extends ModuleServiceProvider
 
     protected function registerNavigation(): void
     {
-        // Content (posts, taxonomy, comments) is managed from the operator
-        // console — the tenant shell is reserved for hotel operations.
+        $this->app->make(\App\Support\Navigation\NavigationBuilder::class)->register(
+            \App\Support\Navigation\NavigationSection::make('Website', 50)->items([
+                \App\Support\Navigation\NavigationItem::make('Posts', 'blog.posts.index')
+                    ->icon('book')
+                    ->permissions('blog.posts.view')
+                    ->feature('blog')
+                    ->activeWhen('blog.posts.*')
+                    ->order(30),
+
+                \App\Support\Navigation\NavigationItem::make('Categories', 'blog.categories.index')
+                    ->icon('folder')
+                    ->permissions('blog.taxonomy.manage')
+                    ->feature('blog')
+                    ->activeWhen('blog.categories.*')
+                    ->order(40),
+
+                \App\Support\Navigation\NavigationItem::make('Tags', 'blog.tags.index')
+                    ->icon('tag')
+                    ->permissions('blog.taxonomy.manage')
+                    ->feature('blog')
+                    ->activeWhen('blog.tags.*')
+                    ->order(50),
+
+                \App\Support\Navigation\NavigationItem::make('Comments', 'blog.comments.index')
+                    ->icon('message-square')
+                    ->permissions('blog.comments.moderate')
+                    ->feature('blog')
+                    ->activeWhen('blog.comments.*')
+                    ->order(60),
+            ]),
+        );
     }
 }

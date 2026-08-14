@@ -34,7 +34,7 @@ export interface TenantSwitcherProps {
 
 /** Switches the billing tenant (company). */
 export function TenantSwitcher({ collapsed = false, variant = 'sidebar', className }: TenantSwitcherProps) {
-    const { auth } = usePage<SharedProps>().props;
+    const { auth, singleVendor } = usePage<SharedProps>().props;
     const [query, setQuery] = useState('');
     const [switching, setSwitching] = useState<string | null>(null);
 
@@ -68,7 +68,7 @@ export function TenantSwitcher({ collapsed = false, variant = 'sidebar', classNa
         );
     }
 
-    const createUrl = routeUrl('companies.create');
+    const createUrl = singleVendor ? null : routeUrl('companies.create');
     const isTopbar = variant === 'topbar';
     const label = active ? `Tenant: ${active.name}. Switch tenant` : 'Select a tenant';
 
