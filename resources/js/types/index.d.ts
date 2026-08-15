@@ -157,6 +157,13 @@ export interface SharedProps {
         hotels: HotelSummary[];
         /** Set only while an administrator is signed in as another user. */
         impersonator: Impersonator | null;
+        customer: {
+            id: number;
+            name: string;
+            first_name: string;
+            last_name: string;
+            email: string;
+        } | null;
     };
     navigation: NavSection[];
     notifications: {

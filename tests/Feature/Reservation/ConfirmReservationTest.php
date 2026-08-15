@@ -11,6 +11,9 @@ use App\Modules\Hotel\Models\Room;
 use App\Modules\Hotel\Models\RoomType;
 use App\Modules\HotelOperations\Notifications\BookingCancelledNotification;
 use App\Modules\HotelOperations\Notifications\BookingConfirmedNotification;
+use App\Modules\OnlineBooking\Actions\SeedBookingPaymentMethods;
+use App\Modules\OnlineBooking\Enums\PaymentMethodDriver;
+use App\Modules\OnlineBooking\Models\BookingPaymentMethod;
 use App\Modules\OnlineBooking\Models\BookingSetting;
 use App\Modules\Reservation\Enums\BookingSource;
 use App\Modules\Reservation\Enums\ReservationStatus;
@@ -47,6 +50,8 @@ function pendingWebsiteStay(): array
     $setting->company_id = $company->id;
     $setting->save();
 
+    app(SeedBookingPaymentMethods::class)->handle($company->id);
+
     $roomType = new RoomType([
         'hotel_id' => $hotel->id,
         'name' => 'Standard Double',
@@ -80,6 +85,13 @@ function pendingWebsiteStay(): array
         'first_name' => 'Jane',
         'last_name' => 'Guest',
         'email' => 'jane@example.com',
+    ])->assertRedirect();
+
+    post(route('booking.place', 'seaside'), [
+        'payment_method_id' => BookingPaymentMethod::query()
+            ->withoutCompanyScope()
+            ->where('driver', PaymentMethodDriver::CashOnDelivery)
+            ->value('id'),
     ])->assertRedirect();
 
     $reservation = Reservation::query()->firstOrFail();

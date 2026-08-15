@@ -60,10 +60,11 @@ export interface PublicShellProps {
 export function PublicShell({ children, header = [], footer = [], banner, className }: PublicShellProps) {
     const { name, auth, bookingUrl } = usePage<SharedProps>().props;
 
-    const loginUrl = routeUrl('login');
-    const registerUrl = routeUrl('register');
-    const dashboardUrl = routeUrl('dashboard');
-    const authenticated = auth.user !== null;
+    const customer = auth.customer;
+    const loginUrl = routeUrl('account.login') ?? routeUrl('login');
+    const registerUrl = routeUrl('account.register') ?? routeUrl('register');
+    const dashboardUrl = customer ? routeUrl('account.dashboard') : routeUrl('dashboard');
+    const authenticated = customer !== null || auth.user !== null;
 
     return (
         <div className={cn('flex min-h-svh flex-col bg-background text-foreground', className)}>
@@ -86,17 +87,17 @@ export function PublicShell({ children, header = [], footer = [], banner, classN
                     <div className="ml-auto flex items-center gap-2">
                         <ThemeToggle />
 
-                        {bookingUrl && !authenticated && (
-                            <Button asChild size="sm">
+                        {bookingUrl && (
+                            <Button asChild size="sm" variant={customer ? 'outline' : 'default'}>
                                 <Link href={bookingUrl}>Book a room</Link>
                             </Button>
                         )}
 
-                        {authenticated
+                        {customer
                             ? dashboardUrl && (
                                   <Button asChild size="sm" variant={bookingUrl ? 'outline' : 'default'}>
                                       <Link href={dashboardUrl}>
-                                          Dashboard
+                                          My account
                                           <ArrowRight className="size-4" aria-hidden="true" />
                                       </Link>
                                   </Button>
@@ -105,12 +106,12 @@ export function PublicShell({ children, header = [], footer = [], banner, classN
                                   <>
                                       {loginUrl && (
                                           <Button asChild variant="ghost" size="sm">
-                                              <Link href={loginUrl}>Log in</Link>
+                                              <Link href={loginUrl}>Sign in</Link>
                                           </Button>
                                       )}
                                       {registerUrl && (
                                           <Button asChild size="sm" variant={bookingUrl ? 'outline' : 'default'}>
-                                              <Link href={registerUrl}>Get started</Link>
+                                              <Link href={registerUrl}>Create account</Link>
                                           </Button>
                                       )}
                                   </>

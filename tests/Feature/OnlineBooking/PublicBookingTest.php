@@ -9,6 +9,10 @@ use App\Modules\Hotel\Models\Hotel;
 use App\Modules\Hotel\Models\Room;
 use App\Modules\Hotel\Models\RoomType;
 use App\Modules\HotelOperations\Notifications\BookingRequestReceivedNotification;
+use App\Modules\OnlineBooking\Actions\SeedBookingPaymentMethods;
+use App\Modules\OnlineBooking\Enums\PaymentMethodDriver;
+use App\Modules\OnlineBooking\Enums\PaymentStatus;
+use App\Modules\OnlineBooking\Models\BookingPaymentMethod;
 use App\Modules\OnlineBooking\Models\BookingSetting;
 use App\Modules\Reservation\Enums\BookingSource;
 use App\Modules\Reservation\Enums\ReservationStatus;
@@ -46,6 +50,8 @@ function publicBookableHotel(string $slug = 'seaside'): array
     $setting->company_id = $company->id;
     $setting->save();
 
+    app(SeedBookingPaymentMethods::class)->handle($company->id);
+
     $roomType = new RoomType([
         'hotel_id' => $hotel->id,
         'name' => 'Standard Double',
@@ -69,6 +75,33 @@ function publicBookableHotel(string $slug = 'seaside'): array
     $room->save();
 
     return compact('hotel', 'roomType', 'room', 'setting');
+}
+
+function publicPaymentMethodId(string $driver = 'cash_on_delivery'): int
+{
+    return (int) BookingPaymentMethod::query()
+        ->withoutCompanyScope()
+        ->where('driver', $driver)
+        ->value('id');
+}
+
+/**
+ * @param  array<string, mixed>  $overrides
+ */
+function publicStayPayload(int $roomTypeId, array $overrides = []): array
+{
+    return [
+        'room_type_id' => $roomTypeId,
+        'check_in_date' => now()->addDays(7)->toDateString(),
+        'check_out_date' => now()->addDays(9)->toDateString(),
+        'adults' => 2,
+        'children' => 0,
+        'first_name' => 'Jane',
+        'last_name' => 'Guest',
+        'email' => 'jane@example.com',
+        'phone' => '+1 415 555 0100',
+        ...$overrides,
+    ];
 }
 
 it('redirects /book to the enabled property slug', function (): void {
@@ -107,24 +140,29 @@ it('preselects a room type from the query string', function (): void {
         ->assertJsonPath('props.filters.room_type_id', $roomType->id);
 });
 
-it('creates a pending website reservation from the landing page', function (): void {
+it('sends the guest to checkout without creating a reservation', function (): void {
+    ['roomType' => $roomType] = publicBookableHotel();
+
+    post('/book/seaside', publicStayPayload($roomType->id))
+        ->assertRedirect(route('booking.checkout', 'seaside'));
+
+    expect(Reservation::query()->count())->toBe(0);
+
+    get(route('booking.checkout', 'seaside'), inertiaHeaders())
+        ->assertOk()
+        ->assertJsonPath('component', 'booking/checkout')
+        ->assertJsonPath('props.cart.email', 'jane@example.com');
+});
+
+it('places a pending cash-on-delivery order from checkout', function (): void {
     Notification::fake();
 
     ['roomType' => $roomType] = publicBookableHotel();
 
-    $checkIn = now()->addDays(7)->toDateString();
-    $checkOut = now()->addDays(9)->toDateString();
+    post('/book/seaside', publicStayPayload($roomType->id))->assertRedirect();
 
-    $response = post('/book/seaside', [
-        'room_type_id' => $roomType->id,
-        'check_in_date' => $checkIn,
-        'check_out_date' => $checkOut,
-        'adults' => 2,
-        'children' => 0,
-        'first_name' => 'Jane',
-        'last_name' => 'Guest',
-        'email' => 'jane@example.com',
-        'phone' => '+1 415 555 0100',
+    $response = post(route('booking.place', 'seaside'), [
+        'payment_method_id' => publicPaymentMethodId(PaymentMethodDriver::CashOnDelivery->value),
     ]);
 
     $reservation = Reservation::query()->where('guest_id', Guest::query()->where('email', 'jane@example.com')->value('id'))->first();
@@ -133,7 +171,8 @@ it('creates a pending website reservation from the landing page', function (): v
         ->and($reservation->status)->toBe(ReservationStatus::Pending)
         ->and($reservation->booking_source)->toBe(BookingSource::Website)
         ->and($reservation->total)->toBe(24000)
-        ->and($reservation->paid_amount)->toBe(0);
+        ->and($reservation->paid_amount)->toBe(0)
+        ->and($reservation->payment_status)->toBe(PaymentStatus::Unpaid);
 
     $response->assertRedirect(route('booking.confirmation', [
         'slug' => 'seaside',
@@ -145,7 +184,39 @@ it('creates a pending website reservation from the landing page', function (): v
     get(route('booking.confirmation', ['slug' => 'seaside', 'number' => $reservation->number]), inertiaHeaders())
         ->assertOk()
         ->assertJsonPath('props.reservation.status', 'pending')
-        ->assertJsonPath('props.reservation.status_label', $reservation->status->label());
+        ->assertJsonPath('props.reservation.payment_status', 'unpaid');
+});
+
+it('places a prepaid order only after payment is confirmed', function (): void {
+    Notification::fake();
+
+    ['roomType' => $roomType] = publicBookableHotel();
+
+    post('/book/seaside', publicStayPayload($roomType->id))->assertRedirect();
+
+    post(route('booking.place', 'seaside'), [
+        'payment_method_id' => publicPaymentMethodId(PaymentMethodDriver::Bkash->value),
+    ])->assertRedirect(route('booking.pay', 'seaside'));
+
+    expect(Reservation::query()->count())->toBe(0);
+
+    $response = post(route('booking.pay.store', 'seaside'), [
+        'payment_reference' => 'BKH-998877',
+    ]);
+
+    $reservation = Reservation::query()->first();
+
+    expect($reservation)->not->toBeNull()
+        ->and($reservation->payment_status)->toBe(PaymentStatus::Paid)
+        ->and($reservation->paid_amount)->toBe(24000)
+        ->and($reservation->payment_reference)->toBe('BKH-998877');
+
+    $response->assertRedirect(route('booking.confirmation', [
+        'slug' => 'seaside',
+        'number' => $reservation->number,
+    ]));
+
+    Notification::assertSentOnDemand(BookingRequestReceivedNotification::class);
 });
 
 it('rejects a booking when the room type is sold out', function (): void {
@@ -154,24 +225,28 @@ it('rejects a booking when the room type is sold out', function (): void {
     $checkIn = now()->addDays(4)->toDateString();
     $checkOut = now()->addDays(6)->toDateString();
 
-    post('/book/seaside', [
-        'room_type_id' => $roomType->id,
+    post('/book/seaside', publicStayPayload($roomType->id, [
         'check_in_date' => $checkIn,
         'check_out_date' => $checkOut,
         'adults' => 1,
         'first_name' => 'First',
-        'last_name' => 'Guest',
         'email' => 'first@example.com',
+    ]))->assertRedirect();
+
+    post(route('booking.place', 'seaside'), [
+        'payment_method_id' => publicPaymentMethodId(),
     ])->assertRedirect();
 
-    post('/book/seaside', [
-        'room_type_id' => $roomType->id,
+    post('/book/seaside', publicStayPayload($roomType->id, [
         'check_in_date' => $checkIn,
         'check_out_date' => $checkOut,
         'adults' => 1,
         'first_name' => 'Second',
-        'last_name' => 'Guest',
         'email' => 'second@example.com',
+    ]))->assertRedirect();
+
+    post(route('booking.place', 'seaside'), [
+        'payment_method_id' => publicPaymentMethodId(),
     ])->assertSessionHasErrors('room_type_id');
 
     expect(Reservation::query()->where('hotel_id', $hotel->id)->count())->toBe(1);

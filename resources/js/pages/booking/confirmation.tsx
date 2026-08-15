@@ -79,6 +79,21 @@ export default function BookingConfirmation({ hotel, reservation, menus }: Props
                             <dt className="text-muted-foreground">Quoted total</dt>
                             <dd className="font-medium tabular-nums">{formatMoney(reservation.total, reservation.currency)}</dd>
                         </div>
+                        {reservation.payment_method && (
+                            <div className="flex justify-between gap-4">
+                                <dt className="text-muted-foreground">Payment</dt>
+                                <dd className="font-medium">
+                                    {reservation.payment_method}
+                                    {reservation.payment_status_label ? ` · ${reservation.payment_status_label}` : ''}
+                                </dd>
+                            </div>
+                        )}
+                        {reservation.payment_reference && (
+                            <div className="flex justify-between gap-4">
+                                <dt className="text-muted-foreground">Payment reference</dt>
+                                <dd className="font-medium">{reservation.payment_reference}</dd>
+                            </div>
+                        )}
                         {reservation.guest_email && (
                             <div className="flex justify-between gap-4">
                                 <dt className="text-muted-foreground">Email</dt>
@@ -94,6 +109,9 @@ export default function BookingConfirmation({ hotel, reservation, menus }: Props
                     </Button>
                     <Button asChild variant="outline">
                         <Link href={route('booking.show', hotel.slug)}>Book another stay</Link>
+                    </Button>
+                    <Button asChild variant="outline">
+                        <Link href={route('account.bookings')}>View my bookings</Link>
                     </Button>
                 </div>
             </div>

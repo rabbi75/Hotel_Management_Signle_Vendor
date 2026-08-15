@@ -96,7 +96,7 @@ class ReservationController extends Controller
     {
         Gate::authorize('view', $reservation);
 
-        $reservation->load(['guest', 'hotel', 'room', 'bed', 'roomType', 'guestFolio.invoice']);
+        $reservation->load(['guest', 'hotel', 'room', 'bed', 'roomType', 'paymentMethod', 'guestFolio.invoice']);
 
         $folio = $reservation->guestFolio;
 

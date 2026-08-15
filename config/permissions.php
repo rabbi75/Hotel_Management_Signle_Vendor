@@ -387,7 +387,7 @@ return [
         'online_booking' => [
             'label' => 'Online booking',
             'permissions' => [
-                'online_booking.manage' => 'Configure online booking settings',
+                'online_booking.manage' => 'Configure online booking and payment methods',
                 'online_booking.book' => 'Create bookings via the API',
             ],
         ],

@@ -26,10 +26,11 @@ interface Props {
     hotel: PublicHotelSummary;
     rooms: PublicCatalogRoom[];
     filters: PublicBookingFilters;
+    guest: { first_name: string; last_name: string; email: string; phone: string | null } | null;
     menus: { header: PublicMenuNode[]; footer: PublicMenuNode[] };
 }
 
-export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
+export default function BookingShow({ hotel, rooms, filters, guest, menus }: Props) {
     const { errors } = usePage<SharedProps>().props;
     const [checkIn, setCheckIn] = useState(filters.check_in_date ?? '');
     const [checkOut, setCheckOut] = useState(filters.check_out_date ?? '');
@@ -42,10 +43,10 @@ export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
         check_out_date: filters.check_out_date ?? '',
         adults: String(filters.adults || 1),
         children: String(filters.children || 0),
-        first_name: '',
-        last_name: '',
-        email: '',
-        phone: '',
+        first_name: guest?.first_name ?? '',
+        last_name: guest?.last_name ?? '',
+        email: guest?.email ?? '',
+        phone: guest?.phone ?? '',
         special_requests: '',
     });
 
@@ -122,8 +123,8 @@ export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
                     <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-5xl">Stay at {hotel.name}</h1>
                     {hotel.description && <p className="mt-4 max-w-2xl text-muted-foreground">{hotel.description}</p>}
                     <p className="mt-3 text-sm text-muted-foreground">
-                        Check-in from {hotel.check_in_time}. Check-out by {hotel.check_out_time}. Requests are held until the
-                        front desk confirms. No payment is taken online.
+                        Check-in from {hotel.check_in_time}. Check-out by {hotel.check_out_time}. Choose a room, then pay
+                        online or select cash on delivery at checkout.
                     </p>
                 </div>
             </section>
@@ -241,7 +242,7 @@ export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
                     {selected ? (
                         <form onSubmit={submit} className="space-y-5 rounded-2xl border border-border bg-card p-5 shadow-sm">
                             <div>
-                                <h2 className="text-lg font-semibold">Request this stay</h2>
+                                <h2 className="text-lg font-semibold">Guest details</h2>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     {selected.name} · {form.data.check_in_date} → {form.data.check_out_date}
                                 </p>
@@ -303,9 +304,9 @@ export default function BookingShow({ hotel, rooms, filters, menus }: Props) {
                                 </div>
                             </div>
 
-                            <p className="text-xs text-muted-foreground">No payment online. The hotel will confirm by email.</p>
+                            <p className="text-xs text-muted-foreground">Next you will choose a payment method, including cash on delivery.</p>
                             <Button type="submit" className="w-full" disabled={form.processing || !datesReady}>
-                                Request this stay
+                                Continue to checkout
                             </Button>
                         </form>
                     ) : (

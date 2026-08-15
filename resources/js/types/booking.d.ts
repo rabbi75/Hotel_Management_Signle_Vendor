@@ -62,4 +62,40 @@ export interface PublicBookingConfirmation {
     room_type: string | null;
     guest_name: string | null;
     guest_email: string | null;
+    paid_amount?: number;
+    due_amount?: number;
+    payment_method?: string | null;
+    payment_status?: string | null;
+    payment_status_label?: string | null;
+    payment_reference?: string | null;
+}
+
+export interface PublicPaymentMethod {
+    id: number;
+    driver: string;
+    driver_label: string;
+    name: string;
+    description: string;
+    instructions: string | null;
+    is_enabled: boolean;
+    is_default: boolean;
+    requires_prepaid: boolean;
+    sort_order: number;
+}
+
+export interface PublicCheckoutCart {
+    room_type: string;
+    check_in_date: string;
+    check_out_date: string;
+    adults: number;
+    children: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string | null;
+    special_requests: string | null;
+    nights: number;
+    nightly_rate: number;
+    total: number;
+    currency: string;
 }

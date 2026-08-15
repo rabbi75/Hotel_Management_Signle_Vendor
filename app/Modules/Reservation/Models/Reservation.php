@@ -10,6 +10,9 @@ use App\Modules\Hotel\Models\Bed;
 use App\Modules\Hotel\Models\Hotel;
 use App\Modules\Hotel\Models\Room;
 use App\Modules\Hotel\Models\RoomType;
+use App\Modules\OnlineBooking\Enums\PaymentStatus;
+use App\Modules\OnlineBooking\Models\BookingPaymentMethod;
+use App\Modules\OnlineBooking\Models\Customer;
 use App\Modules\Reservation\Enums\BookingSource;
 use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Modules\HotelOperations\Concerns\LogsHotelActivity;
@@ -36,11 +39,12 @@ class Reservation extends Model
     use BelongsToCompany, BelongsToWorkspace, LogsHotelActivity, SoftDeletes;
 
     protected $fillable = [
-        'hotel_id', 'number', 'guest_id', 'room_id', 'bed_id', 'room_type_id',
+        'hotel_id', 'number', 'guest_id', 'customer_id', 'room_id', 'bed_id', 'room_type_id',
         'check_in_date', 'check_out_date', 'checked_in_at', 'checked_out_at',
-        'adults', 'children', 'rooms_count', 'booking_source', 'external_reference', 'channel_metadata',
+        'adults', 'children', 'rooms_count', 'booking_source', 'payment_method_id',
+        'external_reference', 'channel_metadata',
         'special_requests', 'notes', 'discount', 'tax', 'total',
-        'paid_amount', 'due_amount', 'status',
+        'paid_amount', 'due_amount', 'payment_status', 'payment_reference', 'paid_at', 'status',
     ];
 
     /**
@@ -63,6 +67,8 @@ class Reservation extends Model
             'total' => 'integer',
             'paid_amount' => 'integer',
             'due_amount' => 'integer',
+            'payment_status' => PaymentStatus::class,
+            'paid_at' => 'immutable_datetime',
             'status' => ReservationStatus::class,
         ];
     }
@@ -81,6 +87,22 @@ class Reservation extends Model
     public function guest(): BelongsTo
     {
         return $this->belongsTo(Guest::class);
+    }
+
+    /**
+     * @return BelongsTo<Customer, $this>
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * @return BelongsTo<BookingPaymentMethod, $this>
+     */
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(BookingPaymentMethod::class, 'payment_method_id');
     }
 
     /**

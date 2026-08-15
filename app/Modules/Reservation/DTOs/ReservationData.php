@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Reservation\DTOs;
 
+use App\Modules\OnlineBooking\Enums\PaymentStatus;
 use App\Modules\Reservation\Enums\BookingSource;
 use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Support\DTOs\Data;
@@ -16,6 +17,7 @@ readonly class ReservationData extends Data
         'check_in_date', 'check_out_date', 'adults', 'children', 'rooms_count',
         'booking_source', 'external_reference', 'channel_metadata', 'special_requests', 'notes', 'discount', 'tax',
         'total', 'paid_amount', 'status',
+        'customer_id', 'payment_method_id', 'payment_status', 'payment_reference', 'paid_at',
     ];
 
     /**
@@ -42,6 +44,11 @@ readonly class ReservationData extends Data
         public int $total = 0,
         public int $paidAmount = 0,
         public ReservationStatus $status = ReservationStatus::Pending,
+        public ?int $customerId = null,
+        public ?int $paymentMethodId = null,
+        public PaymentStatus $paymentStatus = PaymentStatus::Unpaid,
+        public ?string $paymentReference = null,
+        public ?string $paidAt = null,
         public array $provided = self::FIELDS,
     ) {}
 
@@ -112,6 +119,11 @@ readonly class ReservationData extends Data
             'paid_amount' => $this->paidAmount,
             'due_amount' => $this->dueAmount(),
             'status' => $this->status,
+            'customer_id' => $this->customerId,
+            'payment_method_id' => $this->paymentMethodId,
+            'payment_status' => $this->paymentStatus,
+            'payment_reference' => $this->paymentReference,
+            'paid_at' => $this->paidAt,
         ];
     }
 

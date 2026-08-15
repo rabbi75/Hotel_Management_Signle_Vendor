@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OnlineBooking\DTOs;
 
+use App\Modules\OnlineBooking\Enums\PaymentStatus;
 use App\Modules\Reservation\Enums\BookingSource;
 use App\Modules\Reservation\Enums\ReservationStatus;
 use App\Support\DTOs\Data;
@@ -26,5 +27,11 @@ readonly class OnlineBookingData extends Data
         public array $channelMetadata = [],
         public BookingSource $bookingSource = BookingSource::Website,
         public ReservationStatus $status = ReservationStatus::Confirmed,
+        public ?int $customerId = null,
+        public ?int $paymentMethodId = null,
+        public PaymentStatus $paymentStatus = PaymentStatus::Unpaid,
+        public ?string $paymentReference = null,
+        public int $paidAmount = 0,
+        public ?string $paidAt = null,
     ) {}
 }

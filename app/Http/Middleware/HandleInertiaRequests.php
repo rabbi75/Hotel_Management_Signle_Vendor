@@ -9,6 +9,7 @@ use App\Modules\Company\Http\Resources\CompanySummaryResource;
 use App\Modules\Hotel\Http\Resources\HotelSummaryResource;
 use App\Modules\Hotel\Models\Hotel;
 use App\Modules\Notification\Services\NotificationCenter;
+use App\Modules\OnlineBooking\Models\Customer;
 use App\Modules\OnlineBooking\Services\ResolvePublicBookingProperty;
 use App\Modules\Platform\Actions\ImpersonateTenant;
 use App\Modules\Platform\Http\Resources\AdminResource;
@@ -56,6 +57,9 @@ class HandleInertiaRequests extends Middleware
         $adminUser = $request->user('admin');
         $admin = $adminUser instanceof Admin ? $adminUser : null;
 
+        $customerUser = $request->user('customer');
+        $customer = $customerUser instanceof Customer ? $customerUser : null;
+
         $branding = app(Branding::class)->toArray();
 
         return array_merge(parent::share($request), [
@@ -72,6 +76,13 @@ class HandleInertiaRequests extends Middleware
                 // The console operator, on its own guard. Present in the admin
                 // panel; null in the tenant app.
                 'admin' => $admin instanceof Admin ? (new AdminResource($admin))->resolve($request) : null,
+                'customer' => $customer === null ? null : [
+                    'id' => $customer->id,
+                    'name' => $customer->fullName(),
+                    'first_name' => $customer->first_name,
+                    'last_name' => $customer->last_name,
+                    'email' => $customer->email,
+                ],
                 'permissions' => fn (): array => $this->permissions($user, $admin),
                 'entitlements' => fn (): array => $user === null
                     ? []

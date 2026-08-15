@@ -164,6 +164,20 @@ export default function ReservationsShow({ reservation, folio, can, rooms, beds 
                                 {reservation.paid_amount} / {reservation.due_amount}
                             </p>
                         </div>
+                        <div>
+                            <p className="text-muted-foreground">Payment method</p>
+                            <p>{reservation.payment_method || '—'}</p>
+                        </div>
+                        <div>
+                            <p className="text-muted-foreground">Payment status</p>
+                            <p>{reservation.payment_status_label || '—'}</p>
+                        </div>
+                        {reservation.payment_reference && (
+                            <div className="sm:col-span-2">
+                                <p className="text-muted-foreground">Payment reference</p>
+                                <p>{reservation.payment_reference}</p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 

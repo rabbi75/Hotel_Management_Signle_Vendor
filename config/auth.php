@@ -53,6 +53,11 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
     ],
 
     /*
@@ -81,6 +86,11 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => Admin::class,
+        ],
+
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => \App\Modules\OnlineBooking\Models\Customer::class,
         ],
     ],
 

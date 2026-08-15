@@ -94,10 +94,15 @@ class CreateOnlineBooking
                 bookingSource: $data->bookingSource,
                 specialRequests: $data->specialRequests,
                 total: (int) $quote['total'],
-                paidAmount: 0,
+                paidAmount: $data->paidAmount,
                 status: $data->status,
                 externalReference: $data->externalReference,
                 channelMetadata: $data->channelMetadata,
+                customerId: $data->customerId,
+                paymentMethodId: $data->paymentMethodId,
+                paymentStatus: $data->paymentStatus,
+                paymentReference: $data->paymentReference,
+                paidAt: $data->paidAt,
             ));
         });
     }

@@ -47,6 +47,7 @@ use App\Modules\Maintenance\Enums\MaintenanceCategory;
 use App\Modules\Maintenance\Enums\MaintenancePriority;
 use App\Modules\Maintenance\Enums\MaintenanceRequestStatus;
 use App\Modules\Maintenance\Models\MaintenanceRequest;
+use App\Modules\OnlineBooking\Actions\SeedBookingPaymentMethods;
 use App\Modules\OnlineBooking\Models\BookingSetting;
 use App\Modules\Reservation\Actions\CheckInReservation;
 use App\Modules\Reservation\Actions\CreateReservation;
@@ -520,6 +521,8 @@ class HotelManagementSeeder extends Seeder
             'require_deposit' => true,
             'deposit_amount' => 5000,
         ]);
+
+        app(SeedBookingPaymentMethods::class)->handle((int) $hotel->company_id);
 
         return $hotel->fresh(['rooms.roomType', 'rooms.floor', 'rooms.beds']) ?? $hotel;
     }

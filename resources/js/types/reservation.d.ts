@@ -66,6 +66,10 @@ export interface ReservationRow {
     total: number;
     paid_amount: number;
     due_amount: number;
+    payment_method?: string | null;
+    payment_status?: string | null;
+    payment_status_label?: string | null;
+    payment_reference?: string | null;
     status: string;
     status_label: string;
     status_color: string;
