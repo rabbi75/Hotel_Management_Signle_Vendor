@@ -2,6 +2,7 @@ import { BrandLogo } from '@/components/app-shell/brand-logo';
 import { routeUrl } from '@/components/app-shell/routing';
 import { ThemeToggle } from '@/components/app-shell/theme-toggle';
 import { Button } from '@/components/ui/button';
+import { useFlashToasts } from '@/hooks/use-flash-toasts';
 import { cn } from '@/lib/utils';
 import type { SharedProps } from '@/types';
 import type { PublicMenuNode } from '@/types/cms';
@@ -58,6 +59,8 @@ export interface PublicShellProps {
 }
 
 export function PublicShell({ children, header = [], footer = [], banner, className }: PublicShellProps) {
+    useFlashToasts();
+
     const { name, auth, bookingUrl } = usePage<SharedProps>().props;
 
     const customer = auth.customer;

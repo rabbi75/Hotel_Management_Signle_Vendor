@@ -7,7 +7,6 @@ namespace App\Modules\OnlineBooking\Http\Requests;
 use App\Modules\OnlineBooking\Models\Customer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class UpdateCustomerProfileRequest extends FormRequest
 {
@@ -33,7 +32,7 @@ class UpdateCustomerProfileRequest extends FormRequest
                 Rule::unique('customers', 'email')->ignore($customer?->id),
             ],
             'phone' => ['nullable', 'string', 'max:40'],
-            'password' => ['nullable', 'confirmed', Password::defaults()],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
 }

@@ -33,12 +33,12 @@ class CustomerAuthController extends Controller
         if (! Auth::guard('customer')->attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => __('These credentials do not match our records.'),
-            ]);
+            ])->with('error', __('Sign in failed. Check your email and password.'));
         }
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('account.dashboard'));
+        return redirect()->intended(route('account.dashboard'))->with('success', __('Welcome back.'));
     }
 
     public function createRegister(): Response
@@ -72,7 +72,7 @@ class CustomerAuthController extends Controller
         Auth::guard('customer')->logout();
         $request->session()->regenerateToken();
 
-        return redirect()->route('account.login');
+        return redirect()->route('account.login')->with('success', __('You have been signed out.'));
     }
 
     /**

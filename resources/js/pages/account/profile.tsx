@@ -69,8 +69,9 @@ export default function AccountProfile({ customer, menus }: Props) {
                         onChange={(event) => form.setData('password_confirmation', event.target.value)}
                     />
                 </div>
+                {form.errors.password && <p className="text-sm text-destructive">{form.errors.password}</p>}
                 <Button type="submit" disabled={form.processing}>
-                    Save profile
+                    {form.processing ? 'Saving…' : 'Save profile'}
                 </Button>
             </form>
         </AccountShell>

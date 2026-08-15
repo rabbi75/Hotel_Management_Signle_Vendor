@@ -15,11 +15,15 @@ const LEVELS: FlashLevel[] = ['success', 'error', 'warning', 'info'];
  * a message every time an unrelated partial reload landed.
  */
 export function useFlashToasts(): void {
-    const { flash } = usePage<SharedProps>().props;
+    const { flash, errors } = usePage<SharedProps>().props;
     const previous = useRef<string>('');
 
     useEffect(() => {
-        const signature = LEVELS.map((level) => `${level}:${flash?.[level] ?? ''}`).join('|');
+        const firstError = Object.values(errors ?? {}).find((message): message is string => typeof message === 'string' && message !== '');
+        const signature = [
+            ...LEVELS.map((level) => `${level}:${flash?.[level] ?? ''}`),
+            `validation:${firstError ?? ''}`,
+        ].join('|');
 
         if (signature === previous.current) {
             return;
@@ -34,5 +38,9 @@ export function useFlashToasts(): void {
                 toast[level](message);
             }
         }
-    }, [flash]);
+
+        if (firstError && !flash?.error) {
+            toast.error(firstError);
+        }
+    }, [flash, errors]);
 }

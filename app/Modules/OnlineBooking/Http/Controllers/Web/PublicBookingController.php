@@ -115,7 +115,8 @@ class PublicBookingController extends Controller
             'special_requests' => $request->input('special_requests') ?: null,
         ]);
 
-        return redirect()->route('booking.checkout', $slug);
+        return redirect()->route('booking.checkout', $slug)
+            ->with('success', __('Guest details saved. Choose how you would like to pay.'));
     }
 
     public function checkout(Request $request, string $slug): Response|RedirectResponse
@@ -151,7 +152,8 @@ class PublicBookingController extends Controller
         if ($method->requiresPrepaid()) {
             $this->checkout->put($request, [...$cart, 'payment_method_id' => $method->id]);
 
-            return redirect()->route('booking.pay', $slug);
+            return redirect()->route('booking.pay', $slug)
+                ->with('info', __('Complete payment to place this order.'));
         }
 
         $reservation = $this->placeOrder->handle($cart, $method, $customer);
@@ -160,7 +162,7 @@ class PublicBookingController extends Controller
         return redirect()->route('booking.confirmation', [
             'slug' => $slug,
             'number' => $reservation->number,
-        ]);
+        ])->with('success', __('Your stay request has been placed.'));
     }
 
     public function pay(Request $request, string $slug): Response|RedirectResponse
@@ -211,7 +213,7 @@ class PublicBookingController extends Controller
         return redirect()->route('booking.confirmation', [
             'slug' => $slug,
             'number' => $reservation->number,
-        ]);
+        ])->with('success', __('Payment recorded. Your stay request has been placed.'));
     }
 
     public function confirmation(string $slug, string $number): Response

@@ -15,7 +15,9 @@ export default function AccountLogin({ menus }: Props) {
 
     function submit(event: FormEvent<HTMLFormElement>): void {
         event.preventDefault();
-        form.post(route('account.login.store'), { onFinish: () => form.reset('password') });
+        form.post(route('account.login.store'), {
+            onSuccess: () => form.reset('password'),
+        });
     }
 
     return (
@@ -48,8 +50,9 @@ export default function AccountLogin({ menus }: Props) {
                             onChange={(event) => form.setData('password', event.target.value)}
                         />
                     </div>
+                    {form.errors.password && <p className="text-sm text-destructive">{form.errors.password}</p>}
                     <Button type="submit" className="w-full" disabled={form.processing}>
-                        Sign in
+                        {form.processing ? 'Signing in…' : 'Sign in'}
                     </Button>
                 </form>
 
