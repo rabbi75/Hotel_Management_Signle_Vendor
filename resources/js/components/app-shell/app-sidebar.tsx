@@ -27,7 +27,7 @@ export function AppSidebar({ collapsed = false, onNavigate, className }: AppSide
 
     return (
         <div className={cn('flex h-full flex-col bg-sidebar text-sidebar-foreground', className)}>
-            <div className={cn('flex shrink-0 items-center border-b border-sidebar-border px-3 py-3', collapsed && 'justify-center px-2')}>
+            <div className={cn('flex shrink-0 items-center justify-center border-b border-sidebar-border px-3 py-3', collapsed && 'px-2')}>
                 {dashboardUrl ? (
                     <Link
                         href={dashboardUrl}
