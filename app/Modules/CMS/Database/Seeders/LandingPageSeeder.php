@@ -256,9 +256,9 @@ class LandingPageSeeder extends Seeder
                 'secondary_label' => 'Explore rooms',
                 'secondary_url' => '/#rooms',
                 'align' => 'left',
-                'section_background' => 'gradient',
-                'section_padding' => 'spacious',
-                'section_width' => 'wide',
+                'section_background' => 'dark',
+                'section_padding' => 'none',
+                'section_width' => 'full',
             ]],
 
             ['stats', [
