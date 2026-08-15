@@ -20,7 +20,7 @@ class MaintenanceServiceProvider extends ModuleServiceProvider
     protected function bootModule(): void
     {
         $this->app->make(NavigationBuilder::class)->register(
-            NavigationSection::make('Operations', 26)->items([
+            NavigationSection::make('Operations', 27)->items([
                 NavigationItem::make('Maintenance', 'maintenance.index')
                     ->icon('wrench')
                     ->permissions('maintenance.view')

@@ -20,7 +20,7 @@ class HotelPosServiceProvider extends ModuleServiceProvider
     protected function bootModule(): void
     {
         $this->app->make(NavigationBuilder::class)->register(
-            NavigationSection::make('Operations', 28)->items([
+            NavigationSection::make('Operations', 27)->items([
                 NavigationItem::make('Restaurants', 'restaurants.index')
                     ->icon('utensils')
                     ->permissions('hotel_pos.view')

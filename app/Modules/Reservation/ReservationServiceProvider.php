@@ -29,7 +29,7 @@ class ReservationServiceProvider extends ModuleServiceProvider
         $this->registerWebhookEvents();
 
         $this->app->make(NavigationBuilder::class)->register(
-            NavigationSection::make('Reservations', 27)->items([
+            NavigationSection::make('Reservations', 26)->items([
                 NavigationItem::make('Reservations', 'reservations.index')
                     ->icon('calendar-days')
                     ->permissions('reservations.view')

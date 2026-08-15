@@ -69,7 +69,7 @@ class OnlineBookingServiceProvider extends ModuleServiceProvider
     protected function registerNavigation(): void
     {
         $this->app->make(NavigationBuilder::class)->register(
-            NavigationSection::make('Reservations', 27)->items([
+            NavigationSection::make('Reservations', 26)->items([
                 NavigationItem::make('Payment methods', 'booking-payments.index')
                     ->icon('wallet')
                     ->permissions('online_booking.manage')

@@ -20,7 +20,7 @@ class HousekeepingServiceProvider extends ModuleServiceProvider
     protected function bootModule(): void
     {
         $this->app->make(NavigationBuilder::class)->register(
-            NavigationSection::make('Operations', 26)->items([
+            NavigationSection::make('Operations', 27)->items([
                 NavigationItem::make('Housekeeping', 'housekeeping.index')
                     ->icon('brush')
                     ->permissions('housekeeping.view')
