@@ -47,7 +47,7 @@ class DepartmentController extends Controller
             ->filters([
                 Filter::make('parent_id', __('Parent'))->options($this->departmentOptions()),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Department $department): array => (new DepartmentResource($department))->resolve($request));
 
         return Inertia::render('departments/index', [

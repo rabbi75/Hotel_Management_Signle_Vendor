@@ -51,7 +51,7 @@ class BedController extends Controller
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
                 Filter::make('status', __('Status'))->fromEnum(BedStatus::class),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Bed $bed): array => (new BedResource($bed))->resolve($request));
 
         return Inertia::render('beds/index', [

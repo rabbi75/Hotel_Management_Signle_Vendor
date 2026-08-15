@@ -28,8 +28,7 @@ class BookingPaymentMethodController extends Controller
         }
 
         $methods = BookingPaymentMethod::query()
-            ->orderBy('sort_order')
-            ->orderBy('id')
+            ->orderByDesc('id')
             ->get();
 
         return Inertia::render('booking-payments/index', [

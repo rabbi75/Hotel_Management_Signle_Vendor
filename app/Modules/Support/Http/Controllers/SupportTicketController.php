@@ -41,7 +41,7 @@ class SupportTicketController extends Controller
                 Filter::make('priority', __('Priority'))->fromEnum(TicketPriority::class)->multiple(),
                 Filter::make('category', __('Category'))->fromEnum(TicketCategory::class)->multiple(),
             ])
-            ->defaultSort('-updated_at')
+            ->defaultSort('updated_at', 'desc')
             ->transform(fn (SupportTicket $ticket): array => $this->serializeTicket($ticket));
 
         return Inertia::render('support/index', [

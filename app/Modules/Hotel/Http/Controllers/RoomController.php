@@ -55,7 +55,7 @@ class RoomController extends Controller
                 Filter::make('status', __('Status'))->fromEnum(RoomStatus::class),
                 Filter::make('room_type_id', __('Room type'))->options($this->roomTypeOptions()),
             ])
-            ->defaultSort('number', 'asc')
+            ->defaultSort('number', 'desc')
             ->transform(fn (Room $room): array => (new RoomResource($room))->resolve($request));
 
         return Inertia::render('rooms/index', [

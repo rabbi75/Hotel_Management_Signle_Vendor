@@ -48,7 +48,7 @@ class BuildingController extends Controller
             ->filters([
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Building $building): array => (new BuildingResource($building))->resolve($request));
 
         return Inertia::render('buildings/index', [

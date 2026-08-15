@@ -52,7 +52,7 @@ class HotelServiceController extends Controller
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
                 Filter::make('category', __('Category'))->fromEnum(HotelServiceCategory::class)->multiple(),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (HotelService $service): array => (new HotelServiceResource($service))->resolve($request));
 
         return Inertia::render('hotel-services/index', [

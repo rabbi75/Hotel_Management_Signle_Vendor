@@ -76,6 +76,6 @@ class PlatformAuditController extends Controller
                 ),
                 Filter::make('created_at', __('When'))->dateRange(),
             ])
-            ->defaultSort('-created_at');
+            ->defaultSort('created_at', 'desc');
     }
 }

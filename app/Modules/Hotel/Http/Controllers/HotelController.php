@@ -40,7 +40,7 @@ class HotelController extends Controller
             ->filters([
                 Filter::make('status', __('Status'))->fromEnum(HotelStatus::class),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Hotel $hotel): array => (new HotelResource($hotel))->resolve($request));
 
         return Inertia::render('hotels/index', [

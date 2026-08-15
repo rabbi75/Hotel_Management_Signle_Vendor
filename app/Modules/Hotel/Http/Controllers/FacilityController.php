@@ -50,7 +50,7 @@ class FacilityController extends Controller
             ->filters([
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Facility $facility): array => (new FacilityResource($facility))->resolve($request));
 
         return Inertia::render('facilities/index', [

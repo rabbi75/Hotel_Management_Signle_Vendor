@@ -48,7 +48,7 @@ class FloorController extends Controller
             ->filters([
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
             ])
-            ->defaultSort('floor_number', 'asc')
+            ->defaultSort('floor_number', 'desc')
             ->transform(fn (Floor $floor): array => (new FloorResource($floor))->resolve($request));
 
         return Inertia::render('floors/index', [

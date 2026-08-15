@@ -84,8 +84,13 @@ class TableBuilder
      */
     public function defaultSort(string $column, string $direction = 'desc'): static
     {
+        if (str_starts_with($column, '-')) {
+            $column = substr($column, 1);
+            $direction = 'desc';
+        }
+
         $this->defaultSort = $column;
-        $this->defaultDirection = $direction;
+        $this->defaultDirection = in_array($direction, ['asc', 'desc'], true) ? $direction : 'desc';
 
         return $this;
     }
@@ -222,21 +227,18 @@ class TableBuilder
     protected function applySort(): void
     {
         $column = $this->sortColumn();
+        $definition = $column !== null ? $this->columnFor($column) : null;
 
-        if ($column === null) {
+        if ($definition instanceof Column && $definition->isSortable()) {
+            $this->query->orderBy(
+                $this->query->qualifyColumn($definition->sortColumn()),
+                $this->sortDirection(),
+            );
+
             return;
         }
 
-        $definition = $this->columnFor($column);
-
-        if (! $definition instanceof Column || ! $definition->isSortable()) {
-            return;
-        }
-
-        $this->query->orderBy(
-            $this->query->qualifyColumn($definition->sortColumn()),
-            $this->sortDirection(),
-        );
+        $this->query->orderByDesc($this->query->getModel()->getQualifiedKeyName());
     }
 
     protected function columnFor(string $key): ?Column
@@ -259,16 +261,37 @@ class TableBuilder
 
     protected function sortColumn(): ?string
     {
-        $sort = $this->request->query($this->key('sort'));
+        $sort = $this->rawSortValue();
 
-        return is_string($sort) && $sort !== '' ? $sort : $this->defaultSort;
+        if ($sort === null) {
+            return null;
+        }
+
+        return ltrim($sort, '-');
     }
 
     protected function sortDirection(): string
     {
+        $sort = $this->rawSortValue();
+
+        if (is_string($sort) && str_starts_with($sort, '-')) {
+            return 'desc';
+        }
+
         $direction = $this->request->query($this->key('direction'));
 
         return in_array($direction, ['asc', 'desc'], true) ? $direction : $this->defaultDirection;
+    }
+
+    protected function rawSortValue(): ?string
+    {
+        $sort = $this->request->query($this->key('sort'));
+
+        if (is_string($sort) && $sort !== '') {
+            return $sort;
+        }
+
+        return $this->defaultSort;
     }
 
     protected function perPage(): int

@@ -28,7 +28,7 @@ class PlatformMenuController extends Controller
 
         $menus = $this->platformOwned(Menu::class)
             ->with(['items.page'])
-            ->orderBy('location')
+            ->orderByDesc('id')
             ->get();
 
         return Inertia::render('cms/menus/index', [

@@ -24,7 +24,7 @@ class MenuController extends Controller
     {
         Gate::authorize('viewAny', Menu::class);
 
-        $menus = Menu::query()->with(['items.page'])->orderBy('location')->get();
+        $menus = Menu::query()->with(['items.page'])->orderByDesc('id')->get();
 
         return Inertia::render('cms/menus/index', [
             'menus' => MenuResource::collection($menus)->resolve($request),

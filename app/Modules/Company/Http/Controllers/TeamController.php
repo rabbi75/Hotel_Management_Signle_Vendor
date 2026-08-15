@@ -47,7 +47,7 @@ class TeamController extends Controller
             ->filters([
                 Filter::make('department_id', __('Department'))->options($this->departmentOptions()),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Team $team): array => (new TeamResource($team))->resolve($request));
 
         return Inertia::render('teams/index', [

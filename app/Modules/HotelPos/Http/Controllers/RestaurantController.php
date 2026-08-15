@@ -19,7 +19,7 @@ class RestaurantController extends Controller
         $restaurants = Restaurant::query()
             ->with('hotel')
             ->withCount('orders')
-            ->orderBy('name')
+            ->orderByDesc('id')
             ->get()
             ->map(static fn (Restaurant $restaurant): array => [
                 'id' => $restaurant->id,

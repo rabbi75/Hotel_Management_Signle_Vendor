@@ -179,7 +179,7 @@ class AdminController extends Controller
                     'suspended' => __('Suspended'),
                 ]),
             ])
-            ->defaultSort('created_at')
+            ->defaultSort('last_login_at', 'desc')
             ->transform(fn (Admin $admin): array => (new AdminResource($admin))->resolve($request));
     }
 

@@ -51,7 +51,7 @@ class PlanController extends Controller
             ->filters([
                 Filter::make('is_active', __('Active'))->boolean(),
             ])
-            ->defaultSort('sort', 'asc')
+            ->defaultSort('sort', 'desc')
             ->transform(fn (Plan $plan): array => (new PlanResource($plan))->resolve($request));
 
         return Inertia::render('admin/plans/index', [

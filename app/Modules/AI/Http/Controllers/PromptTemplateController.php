@@ -42,7 +42,7 @@ class PromptTemplateController extends Controller
                 Filter::make('is_shared', __('Visibility'))->boolean(),
                 Filter::make('provider', __('Provider'))->options($this->providerOptions()),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (AiPromptTemplate $template): array => (new AiPromptTemplateResource($template))->resolve($request));
 
         return Inertia::render('ai/templates/index', [

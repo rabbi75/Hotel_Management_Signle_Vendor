@@ -34,7 +34,7 @@ class RoleController extends Controller
                 Column::make('permissions_count', __('Permissions'))->align('right'),
                 Column::make('created_at')->sortable()->hidden(),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(static fn (Role $role): array => (new RoleResource($role))->resolve())
             ->toArray();
 

@@ -49,7 +49,7 @@ class RoomTypeController extends Controller
             ->filters([
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (RoomType $roomType): array => (new RoomTypeResource($roomType))->resolve($request));
 
         return Inertia::render('room-types/index', [

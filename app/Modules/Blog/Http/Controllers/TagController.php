@@ -31,7 +31,7 @@ class TagController extends Controller
                 Column::make('posts_count', __('Posts'))->align('right'),
                 Column::make('created_at', __('Created'))->sortable()->hidden(),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Tag $tag): array => (new TagResource($tag))->resolve($request));
 
         return Inertia::render('blog/tags/index', [

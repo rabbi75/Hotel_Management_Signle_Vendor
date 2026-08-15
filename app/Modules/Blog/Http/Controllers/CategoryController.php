@@ -37,7 +37,7 @@ class CategoryController extends Controller
                 Column::make('posts_count', __('Posts'))->align('right'),
                 Column::make('created_at', __('Created'))->sortable()->hidden(),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('name', 'desc')
             ->transform(fn (Category $category): array => (new CategoryResource($category))->resolve($request));
 
         return Inertia::render('blog/categories/index', [

@@ -28,7 +28,7 @@ class EmailTemplateController extends Controller
         $this->resolver->seedDefaults();
 
         $templates = EmailTemplate::query()
-            ->orderBy('name')
+            ->orderByDesc('id')
             ->get()
             ->map(static fn (EmailTemplate $template): array => [
                 'id' => $template->id,

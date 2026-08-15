@@ -51,7 +51,7 @@ class GuestController extends Controller
                     '0' => __('No'),
                 ]),
             ])
-            ->defaultSort('last_name', 'asc')
+            ->defaultSort('full_name', 'desc')
             ->transform(fn (Guest $guest): array => (new GuestResource($guest))->resolve($request));
 
         return Inertia::render('guests/index', [
