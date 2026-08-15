@@ -41,6 +41,7 @@ class LandingPageSeeder extends Seeder
                 $this->replaceContent($page);
             } elseif (single_vendor()) {
                 $this->pointCtasAtBooking($page);
+                $this->ensureProfessionalBlocks($page);
             }
         } else {
             $page = $this->pages->create(new PageData(
@@ -90,12 +91,53 @@ class LandingPageSeeder extends Seeder
         }
     }
 
+    /**
+     * Add the newer hotel landing sections to an existing homepage that was
+     * seeded before those block types existed.
+     */
+    protected function ensureProfessionalBlocks(Page $page): void
+    {
+        $existing = PageBlock::query()
+            ->withoutGlobalScope(CompanyScope::class)
+            ->where('page_id', $page->id)
+            ->pluck('type')
+            ->all();
+
+        foreach ($this->blockList() as [$type, $data]) {
+            if (! in_array($type, ['split', 'offers', 'steps', 'video', 'logos', 'location'], true)) {
+                continue;
+            }
+
+            if (in_array($type, $existing, true)) {
+                continue;
+            }
+
+            $schema = $this->blocks->get($type);
+
+            if ($schema === null) {
+                continue;
+            }
+
+            $before = PageBlock::query()
+                ->withoutGlobalScope(CompanyScope::class)
+                ->where('page_id', $page->id)
+                ->whereIn('type', ['contact', 'cta'])
+                ->orderBy('order')
+                ->first();
+
+            $this->pages->insertBlock($page, $schema, $before?->order, $data);
+            $existing[] = $type;
+        }
+    }
+
     protected function ensureMenus(): void
     {
         $this->seedMenu(MenuLocation::Header, 'Header', [
             ['Rooms', '/#rooms'],
+            ['Offers', '/#offers'],
             ['Dining', '/#dining'],
             ['Gallery', '/#gallery'],
+            ['Location', '/#location'],
             ['FAQ', '/#faq'],
             ['Contact', '/#contact'],
         ]);
@@ -125,16 +167,21 @@ class LandingPageSeeder extends Seeder
             $menu->forceFill(['company_id' => null])->save();
         }
 
-        $existing = MenuItem::query()
+        $existingItems = MenuItem::query()
             ->withoutGlobalScope(CompanyScope::class)
             ->where('menu_id', $menu->id)
-            ->count();
+            ->get();
 
-        if ($existing > 0) {
-            return;
-        }
+        $labels = $existingItems->pluck('label')->map(static fn (mixed $label): string => strtolower((string) $label))->all();
+        $order = $existingItems->max('order') ?? -1;
 
-        foreach ($items as $order => [$label, $url]) {
+        foreach ($items as [$label, $url]) {
+            if (in_array(strtolower($label), $labels, true)) {
+                continue;
+            }
+
+            $order++;
+
             $item = new MenuItem([
                 'menu_id' => $menu->id,
                 'label' => $label,
@@ -226,12 +273,66 @@ class LandingPageSeeder extends Seeder
                 'section_width' => 'normal',
             ]],
 
+            ['split', [
+                'eyebrow' => 'The hotel',
+                'heading' => 'A boutique stay on Gulshan Avenue',
+                'body' => "Grand Palms is a 12-key city hotel built for guests who want quiet rooms, a working front desk, and dining they can charge to the folio.\n\nThe lobby takes walk-ins. Website requests are confirmed the same day whenever a room is free.",
+                'image' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=80',
+                'image_side' => 'left',
+                'button_label' => 'Talk to reception',
+                'button_url' => '/#contact',
+                'section_background' => 'default',
+                'section_padding' => 'normal',
+                'section_width' => 'wide',
+            ]],
+
             ['rooms', [
                 'heading' => 'Rooms for tonight',
                 'subheading' => 'Live availability for the next night. Choose a room, or search other dates. Requests stay pending until reception confirms.',
                 'button_label' => 'Book this room',
                 'section_id' => 'rooms',
                 'section_background' => 'muted',
+                'section_padding' => 'normal',
+                'section_width' => 'wide',
+            ]],
+
+            ['offers', [
+                'heading' => 'Stay packages',
+                'subheading' => 'Set rates the front desk can honour. Book online, then pay at arrival.',
+                'section_id' => 'offers',
+                'items' => [
+                    [
+                        'badge' => 'Most booked',
+                        'title' => 'City break',
+                        'description' => 'Two nights in a Deluxe King with breakfast at The Palms posted to the folio.',
+                        'price' => 'BDT 18,500',
+                        'price_note' => 'for two nights',
+                        'image' => 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1200&q=80',
+                        'button_label' => 'Book this stay',
+                        'button_url' => '/book',
+                    ],
+                    [
+                        'badge' => 'Family',
+                        'title' => 'Weekend together',
+                        'description' => 'Family Room for three nights, late check-out on request, and kids eat from the continental menu.',
+                        'price' => 'BDT 28,000',
+                        'price_note' => 'for three nights',
+                        'image' => 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=80',
+                        'button_label' => 'Check dates',
+                        'button_url' => '/book',
+                    ],
+                    [
+                        'badge' => 'Long stay',
+                        'title' => 'Executive week',
+                        'description' => 'Seven nights in the Executive Suite with airport transfer arranged by reception.',
+                        'price' => 'BDT 72,000',
+                        'price_note' => 'for seven nights',
+                        'image' => 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
+                        'button_label' => 'Request a suite',
+                        'button_url' => '/book',
+                    ],
+                ],
+                'section_background' => 'default',
                 'section_padding' => 'normal',
                 'section_width' => 'wide',
             ]],
@@ -275,6 +376,20 @@ class LandingPageSeeder extends Seeder
                 'section_width' => 'wide',
             ]],
 
+            ['steps', [
+                'heading' => 'How a website booking works',
+                'subheading' => 'No payment is taken online. Reception confirms every request.',
+                'items' => [
+                    ['icon' => 'calendar-days', 'title' => 'Choose dates', 'description' => 'Pick check-in and check-out, then a room type that is still free.'],
+                    ['icon' => 'send', 'title' => 'Send the request', 'description' => 'Your stay is held as pending. You get an email as soon as it arrives at the desk.'],
+                    ['icon' => 'circle-check', 'title' => 'Front desk confirms', 'description' => 'Reception confirms the same day whenever the room is available.'],
+                    ['icon' => 'key-round', 'title' => 'Arrive and settle', 'description' => 'Photo ID at check-in from 14:00. Pay at the desk, not on the website.'],
+                ],
+                'section_background' => 'default',
+                'section_padding' => 'normal',
+                'section_width' => 'wide',
+            ]],
+
             ['richtext', [
                 'content' => '<h2>On Gulshan Avenue</h2><p>Grand Palms Hotel sits at 12 Gulshan Avenue, Dhaka 1212 — a short ride from the diplomatic zone, Gulshan Lake and the city’s main restaurants. The lobby takes walk-ins; website requests are confirmed by the front desk, usually the same day.</p><p>Photo ID is required at arrival. Pets are not permitted. Check-in from 14:00, check-out by 11:00.</p>',
                 'width' => 'prose',
@@ -300,6 +415,16 @@ class LandingPageSeeder extends Seeder
                 'section_width' => 'wide',
             ]],
 
+            ['video', [
+                'heading' => 'A look around the property',
+                'subheading' => 'Lobby, rooms, rooftop pool and The Palms Restaurant.',
+                'video_url' => 'https://www.youtube.com/watch?v=2l2KzQjQvJc',
+                'poster' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80',
+                'section_background' => 'default',
+                'section_padding' => 'normal',
+                'section_width' => 'wide',
+            ]],
+
             ['testimonials', [
                 'heading' => 'From recent stays',
                 'items' => [
@@ -309,6 +434,21 @@ class LandingPageSeeder extends Seeder
                 ],
                 'section_background' => 'default',
                 'section_padding' => 'normal',
+                'section_width' => 'wide',
+            ]],
+
+            ['logos', [
+                'heading' => 'Recognised by',
+                'items' => [
+                    ['image' => '', 'label' => 'TripAdvisor', 'url' => ''],
+                    ['image' => '', 'label' => 'Booking.com', 'url' => ''],
+                    ['image' => '', 'label' => 'Google Reviews', 'url' => ''],
+                    ['image' => '', 'label' => 'Dhaka Guide', 'url' => ''],
+                    ['image' => '', 'label' => 'Travel + Leisure', 'url' => ''],
+                    ['image' => '', 'label' => 'Lonely Planet', 'url' => ''],
+                ],
+                'section_background' => 'muted',
+                'section_padding' => 'compact',
                 'section_width' => 'wide',
             ]],
 
@@ -326,6 +466,24 @@ class LandingPageSeeder extends Seeder
                 'section_background' => 'muted',
                 'section_padding' => 'normal',
                 'section_width' => 'normal',
+            ]],
+
+            ['location', [
+                'heading' => 'Find us',
+                'subheading' => 'Twelve minutes from the diplomatic zone, with limited on-site parking.',
+                'address' => "12 Gulshan Avenue\nDhaka 1212\nBangladesh",
+                'hours' => 'Front desk 24 hours. Check-in from 14:00, check-out by 11:00.',
+                'map_embed_url' => 'https://maps.google.com/maps?q=Gulshan%20Avenue%20Dhaka&t=&z=15&ie=UTF8&iwloc=&output=embed',
+                'directions_url' => 'https://maps.google.com/?q=12+Gulshan+Avenue+Dhaka',
+                'section_id' => 'location',
+                'landmarks' => [
+                    ['title' => 'Gulshan Lake Park', 'distance' => '8 min walk'],
+                    ['title' => 'Diplomatic zone', 'distance' => '12 min drive'],
+                    ['title' => 'Hazrat Shahjalal Airport', 'distance' => '35 min drive'],
+                ],
+                'section_background' => 'default',
+                'section_padding' => 'normal',
+                'section_width' => 'wide',
             ]],
 
             ['contact', [
