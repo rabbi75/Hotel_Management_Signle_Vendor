@@ -35,6 +35,12 @@ class StoreRoomRequest extends FormRequest
             'is_active' => ['sometimes', 'boolean'],
             'facility_ids' => ['nullable', 'array'],
             'facility_ids.*' => ['integer', Rule::exists('facilities', 'id')->where('company_id', current_company_id())->whereNull('deleted_at')],
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:'.implode(',', (array) config('saas.uploads.image_mimes')),
+                'max:'.(int) config('saas.uploads.max_size_kb'),
+            ],
         ];
     }
 }

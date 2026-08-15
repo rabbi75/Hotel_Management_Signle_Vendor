@@ -1,4 +1,5 @@
 import { FormActions } from '@/components/forms/form-actions';
+import { ImageUpload } from '@/components/forms/image-upload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,8 @@ export function RoomForm({ room, hotels, buildings, floors, roomTypes, facilitie
         status: room?.status ?? 'available',
         is_active: room?.is_active ?? true,
         facility_ids: (room?.facility_ids ?? []).map(String),
+        image: null as File | null,
+        remove_image: false,
     });
     const { data, setData, errors, processing, isDirty, recentlySuccessful } = form;
 
@@ -51,12 +54,14 @@ export function RoomForm({ room, hotels, buildings, floors, roomTypes, facilitie
             base_price: values.base_price === '' ? null : Number(values.base_price),
             max_occupancy: values.max_occupancy === '' ? null : Number(values.max_occupancy),
             facility_ids: values.facility_ids.map(Number),
+            image: values.image instanceof File ? values.image : null,
+            ...(editing ? { _method: 'put' } : {}),
         }));
         if (editing && room) {
-            form.put(route('rooms.update', room.id), { preserveScroll: true });
+            form.post(route('rooms.update', room.id), { preserveScroll: true, forceFormData: true });
             return;
         }
-        form.post(route('rooms.store'));
+        form.post(route('rooms.store'), { forceFormData: true });
     }
 
     function selectField(label: string, key: keyof typeof data, options: OptionMap, optional = true) {
@@ -149,6 +154,25 @@ export function RoomForm({ room, hotels, buildings, floors, roomTypes, facilitie
                     <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="description">Description</Label>
                         <Textarea id="description" rows={3} value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                        <Label>Room photo</Label>
+                        <ImageUpload
+                            value={data.image ?? (data.remove_image ? null : (room?.image ?? null))}
+                            onChange={(file) => {
+                                setData('image', file);
+                                setData('remove_image', file === null);
+                            }}
+                            label="Room photo"
+                            maxSizeMb={20}
+                            invalid={Boolean(errors.image)}
+                            describedBy={errors.image ? 'room-image-error' : undefined}
+                        />
+                        {errors.image && (
+                            <p id="room-image-error" className="text-sm text-destructive">
+                                {errors.image}
+                            </p>
+                        )}
                     </div>
                 </CardContent>
             </Card>

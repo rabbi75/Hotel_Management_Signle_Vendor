@@ -12,8 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -92,8 +94,26 @@ class Room extends Model implements HasMedia
         return $this->morphToMany(Facility::class, 'facilityable')->withTimestamps();
     }
 
+    public function imageUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('photo') ?: null;
+    }
+
+    public function imageThumbUrl(): ?string
+    {
+        return $this->getFirstMediaUrl('photo', 'thumb') ?: $this->imageUrl();
+    }
+
     public function registerMediaCollections(): void
     {
+        $this->addMediaCollection('photo')->singleFile();
         $this->addMediaCollection('gallery');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->nonQueued()
+            ->fit(Fit::Crop, 320, 240);
     }
 }

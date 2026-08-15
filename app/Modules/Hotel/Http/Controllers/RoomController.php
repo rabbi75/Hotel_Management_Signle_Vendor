@@ -21,6 +21,7 @@ use App\Support\DataTable\Filter;
 use App\Support\DataTable\TableBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,7 +34,7 @@ class RoomController extends Controller
     {
         Gate::authorize('viewAny', Room::class);
 
-        $query = Room::query()->with(['hotel', 'floor', 'roomType', 'building'])->withCount('beds');
+        $query = Room::query()->with(['hotel', 'floor', 'roomType', 'building', 'media'])->withCount('beds');
 
         if (current_hotel_id() !== null) {
             $query->where('hotel_id', current_hotel_id());
@@ -41,6 +42,7 @@ class RoomController extends Controller
 
         $table = TableBuilder::for($query, $request, 'rooms')
             ->columns([
+                Column::make('image', __('Photo')),
                 Column::make('number', __('Room'))->sortable()->searchable()->locked(),
                 Column::make('hotel', __('Hotel'))->sortable('hotel_id'),
                 Column::make('room_type', __('Type'))->sortable('room_type_id'),
@@ -79,7 +81,12 @@ class RoomController extends Controller
 
     public function store(StoreRoomRequest $request, CreateRoom $createRoom): RedirectResponse
     {
-        $room = $createRoom->handle(RoomData::fromRequest($request));
+        $image = $request->file('image');
+
+        $room = $createRoom->handle(
+            RoomData::fromRequest($request),
+            $image instanceof UploadedFile ? $image : null,
+        );
 
         return redirect()->route('rooms.index')->with('success', __('Room :number created.', ['number' => $room->number]));
     }
@@ -101,7 +108,14 @@ class RoomController extends Controller
 
     public function update(UpdateRoomRequest $request, Room $room, UpdateRoom $updateRoom): RedirectResponse
     {
-        $updateRoom->handle($room, RoomData::fromRequest($request));
+        $image = $request->file('image');
+
+        $updateRoom->handle(
+            $room,
+            RoomData::fromRequest($request),
+            $image instanceof UploadedFile ? $image : null,
+            $request->boolean('remove_image'),
+        );
 
         return back()->with('success', __('Room updated.'));
     }

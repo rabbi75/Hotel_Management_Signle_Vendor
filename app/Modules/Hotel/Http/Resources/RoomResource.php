@@ -39,6 +39,8 @@ class RoomResource extends JsonResource
             'facility_ids' => $room->relationLoaded('facilities')
                 ? $room->facilities->pluck('id')->all()
                 : [],
+            'image' => $room->imageUrl(),
+            'image_thumb' => $room->imageThumbUrl(),
             'beds_count' => isset($room->beds_count) ? (int) $room->beds_count : null,
             'created_at' => $room->created_at?->toIso8601String(),
         ];

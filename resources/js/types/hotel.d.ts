@@ -105,6 +105,8 @@ export interface RoomRow {
     status_color: string;
     is_active: boolean;
     facility_ids: number[];
+    image: string | null;
+    image_thumb: string | null;
     beds_count: number | null;
     created_at: string | null;
 }

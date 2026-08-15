@@ -30,6 +30,12 @@ export default function RoomsIndex({ table, can }: Props) {
     }
 
     const columns: ColumnRenderers<RoomRow> = {
+        image: (row) =>
+            row.image_thumb || row.image ? (
+                <img src={row.image_thumb ?? row.image ?? ''} alt="" className="size-10 rounded-md object-cover" />
+            ) : (
+                <span className="text-muted-foreground">—</span>
+            ),
         number: (row) => <span className="font-medium">{row.number}</span>,
         hotel: (row) => <TextCell value={row.hotel} muted />,
         room_type: (row) => <TextCell value={row.room_type} muted />,
