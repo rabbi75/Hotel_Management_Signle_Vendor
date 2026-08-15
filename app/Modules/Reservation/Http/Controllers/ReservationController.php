@@ -51,7 +51,7 @@ class ReservationController extends Controller
 
         $table = TableBuilder::for($query, $request, 'reservations')
             ->columns([
-                Column::make('number', __('Number'))->sortable()->searchable()->locked(),
+                Column::make('number', __('Number'))->sortable('id')->searchable()->locked(),
                 Column::make('guest', __('Guest'))->searchable('guest.first_name'),
                 Column::make('room', __('Room')),
                 Column::make('check_in_date', __('Check-in'))->sortable(),
@@ -64,7 +64,7 @@ class ReservationController extends Controller
                 Filter::make('hotel_id', __('Hotel'))->options($this->hotelOptions()),
                 Filter::make('booking_source', __('Source'))->fromEnum(BookingSource::class),
             ])
-            ->defaultSort('check_in_date', 'desc')
+            ->defaultSort('number', 'desc')
             ->transform(fn (Reservation $reservation): array => (new ReservationResource($reservation))->resolve($request));
 
         return Inertia::render('reservations/index', [
