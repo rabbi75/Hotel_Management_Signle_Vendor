@@ -96,12 +96,30 @@ class Room extends Model implements HasMedia
 
     public function imageUrl(): ?string
     {
-        return $this->getFirstMediaUrl('photo') ?: null;
+        return $this->publicMediaUrl('photo');
     }
 
     public function imageThumbUrl(): ?string
     {
-        return $this->getFirstMediaUrl('photo', 'thumb') ?: $this->imageUrl();
+        return $this->publicMediaUrl('photo', 'thumb') ?? $this->imageUrl();
+    }
+
+    /**
+     * Root-relative URL so the photo loads on the current host/port
+     * (e.g. localhost:8000) instead of whatever APP_URL was when it was saved.
+     */
+    protected function publicMediaUrl(string $collection, string $conversion = ''): ?string
+    {
+        $media = $this->getFirstMedia($collection);
+
+        if ($media === null) {
+            return null;
+        }
+
+        $url = $conversion === '' ? $media->getUrl() : $media->getUrl($conversion);
+        $path = parse_url($url, PHP_URL_PATH);
+
+        return is_string($path) && $path !== '' ? $path : $url;
     }
 
     public function registerMediaCollections(): void

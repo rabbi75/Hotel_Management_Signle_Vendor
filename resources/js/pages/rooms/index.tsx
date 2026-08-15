@@ -12,6 +12,17 @@ import type { BreadcrumbItem, TablePayload } from '@/types';
 import type { RoomRow } from '@/types/hotel';
 import { Link, router } from '@inertiajs/react';
 import { DoorOpen, Pencil, Plus, SearchX, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+
+function RoomPhoto({ src }: { src: string }) {
+    const [failed, setFailed] = useState(false);
+
+    if (failed) {
+        return <span className="text-muted-foreground">—</span>;
+    }
+
+    return <img src={src} alt="" className="size-10 rounded-md object-cover" onError={() => setFailed(true)} />;
+}
 
 interface Props {
     table: TablePayload<RoomRow>;
@@ -32,7 +43,7 @@ export default function RoomsIndex({ table, can }: Props) {
     const columns: ColumnRenderers<RoomRow> = {
         image: (row) =>
             row.image_thumb || row.image ? (
-                <img src={row.image_thumb ?? row.image ?? ''} alt="" className="size-10 rounded-md object-cover" />
+                <RoomPhoto src={row.image_thumb ?? row.image ?? ''} />
             ) : (
                 <span className="text-muted-foreground">—</span>
             ),
